@@ -20,6 +20,8 @@ import platformDirectives from './directives/index'
 import platformComponents from './components/index'
 
 // install platform specific utils
+// 判断是否是关键属性（表单元素的 input/checked/selected/muted）
+// 如果是这些属性，设置 el.props 属性（属性不设置在标签上）
 Vue.config.mustUseProp = mustUseProp
 Vue.config.isReservedTag = isReservedTag
 Vue.config.isReservedAttr = isReservedAttr
@@ -27,10 +29,17 @@ Vue.config.getTagNamespace = getTagNamespace
 Vue.config.isUnknownElement = isUnknownElement
 
 // install platform runtime directives & components
+// 将参数2的对象中的属性 拷贝到 参数1对应的对象中来
+// v-model 和 v-show
+// 全局的指令和组件可以通过在 Vue.options 中找到 
 extend(Vue.options.directives, platformDirectives)
+// transition组件 和 transition-group组件
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
+// 以下函数的功能是完成 虚拟DOM -> 真实DOM 的转变
+// inBrowser在 core/util/env.js 文件中
+// inBrowser = type window !== 'undefined'
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 // public mount method
@@ -39,6 +48,7 @@ Vue.prototype.$mount = function (
   hydrating?: boolean
 ): Component {
   el = el && inBrowser ? query(el) : undefined
+  // 渲染 DOM
   return mountComponent(this, el, hydrating)
 }
 

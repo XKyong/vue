@@ -25,6 +25,10 @@ const weexFactoryPlugin = {
   }
 }
 
+// 对于 TARGET 为 web-full-dev 来说，通过以下 aliases 对象和 resolve 函数的处理，
+// 最终生成的路径（就目前的本地文件结构来讲）为：
+// E:/01-programming_files/01-Front-end/Vue/vue-source-code-learning/vue-dev/vue-2.6.12/src/platform/web/entry-runtime-with-compiler.js
+// 后续内容的分析主要基于该入口文件来展开！
 const aliases = require('./alias')
 const resolve = p => {
   const base = p.split('/')[0]
@@ -37,12 +41,13 @@ const resolve = p => {
 
 const builds = {
   // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
+  // 下边的resolve函数的作用是将传入的字符串路径转换为绝对路径！
   'web-runtime-cjs-dev': {
-    entry: resolve('web/entry-runtime.js'),
-    dest: resolve('dist/vue.runtime.common.dev.js'),
-    format: 'cjs',
-    env: 'development',
-    banner
+    entry: resolve('web/entry-runtime.js'),  // 对应Vue版本的入口文件
+    dest: resolve('dist/vue.runtime.common.dev.js'), // 对应Vue版本的打包输出文件
+    format: 'cjs',  // 文件格式
+    env: 'development',  // 适用环境
+    banner   // 打包生成的 Vue 版本的文件头描述内容
   },
   'web-runtime-cjs-prod': {
     entry: resolve('web/entry-runtime.js'),
@@ -263,6 +268,8 @@ function genConfig (name) {
   return config
 }
 
+// 判断环境变量中是否有 TARGET
+// 如果有的话，使用 genConfig 生成 rollup 配置文件
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {
