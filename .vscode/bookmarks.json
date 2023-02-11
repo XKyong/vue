@@ -1,0 +1,34 @@
+{
+	"files": [
+		{
+			"path": "scripts/config.js",
+			"bookmarks": [
+				{
+					"line": 27,
+					"column": 38,
+					"label": "vue源码入口resolve处理"
+				},
+				{
+					"line": 127,
+					"column": 19,
+					"label": "vue源码入口配置"
+				},
+				{
+					"line": 272,
+					"column": 20,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "src/platforms/web/entry-runtime-with-compiler.js",
+			"bookmarks": [
+				{
+					"line": 18,
+					"column": 27,
+					"label": "$mount，解决 template 和 render 同时存在时执行优先级的问题"
+				}
+			]
+		}
+	]
+}
