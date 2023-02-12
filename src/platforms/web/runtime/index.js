@@ -30,10 +30,11 @@ Vue.config.isUnknownElement = isUnknownElement
 
 // install platform runtime directives & components
 // 将参数2的对象中的属性 拷贝到 参数1对应的对象中来
+// 全局的指令和组件可以通过在 Vue.options.directives 和 Vue.options.components 中找到 
+
 // v-model 和 v-show
-// 全局的指令和组件可以通过在 Vue.options 中找到 
 extend(Vue.options.directives, platformDirectives)
-// transition组件 和 transition-group组件
+// transition 组件和 transition-group 组件
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
@@ -52,6 +53,7 @@ Vue.prototype.$mount = function (
   return mountComponent(this, el, hydrating)
 }
 
+// vue devtools 调试相关的代码
 // devtools global hook
 /* istanbul ignore next */
 if (inBrowser) {

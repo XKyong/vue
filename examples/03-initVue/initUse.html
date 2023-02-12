@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>initUse</title>
+</head>
+<body>
+  <div id="app">{{msg}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 模拟插件
+    function install (Vue, options) {
+      Vue.initUse = options || {}
+    }
+
+    const useObj = {
+      install (Vue, options) {
+        Vue.initUse = options || {}
+      }
+    }
+
+    new Vue({
+      el: '#app',
+      data: {
+        msg: 'hello vue'
+      }
+    })
+    
+    // 传入的是 函数 
+    // Vue.use(install, {
+    //   name: 'kai',
+    //   age: 23,
+    //   type: 'function'
+    // })
+
+    // 传入的是 对象
+    Vue.use(useObj, {
+      name: 'kai',
+      age: 23,
+      type: 'object'
+    })
+
+    console.dir(Vue)
+  </script>
+</body>
+</html>

@@ -45,11 +45,13 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   }
 
   // 分析完“响应式”再来细究源码细节！---------------
+  // 给Vue构造函数添加静态方法
   Vue.set = set
   Vue.delete = del
   Vue.nextTick = nextTick
 
   // 2.6 explicit observable API
+  // observable 让一个对象可响应
   Vue.observable = <T>(obj: T): T => {
     observe(obj)
     return obj
@@ -68,14 +70,15 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   // this is used to identify the "base" constructor to extend all plain-object
   // components with in Weex's multi-instance scenarios.
+  // 记录 Vue 构造函数
   Vue.options._base = Vue
 
-  // 设置 keep-alive 组件
+  // 设置 builtInComponents，即 keep-alive 组件
   // 这里的 extend 函数的具体位置为：shared/util 
-  // extend作用就是将参数2的对象浅拷贝给参数1的对象
+  // extend作用就是将参数2的对象 浅拷贝 给参数1的对象
   extend(Vue.options.components, builtInComponents)
 
-  // 00:76:30后续的内容待看！！！
+  // 以下的3个函数对应于当前文件夹下的use.js/mixin.js/extend.js/assets.js
   // 注册 Vue.use，用来注册插件
   initUse(Vue)
   // 注册 Vue.mixin，用来实现混入
@@ -83,5 +86,6 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // 注册 Vue.extend，基于传入的options返回一个组件的构造函数
   initExtend(Vue)
   // 注册 Vue.directive()/Vue.component()/Vue.filter()
+  // 这3个方法使用同一个函数进行处理，因为这3者的参数使用一致（详见assets.js）！
   initAssetRegisters(Vue)
 }

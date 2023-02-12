@@ -7,6 +7,7 @@ import { FunctionalRenderContext } from 'core/vdom/create-functional-component'
 // 函数的作用主要是给Vue挂载静态方法
 initGlobalAPI(Vue)
 
+// 如下的 $isServer $ssrContext FunctionalRenderContext 跟 ssr 相关
 Object.defineProperty(Vue.prototype, '$isServer', {
   get: isServerRendering
 })

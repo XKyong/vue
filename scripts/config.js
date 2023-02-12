@@ -126,6 +126,8 @@ const builds = {
   },
   // Runtime+compiler development build (Browser)
   'web-full-dev': {
+    // 最终形成的入口位置为：src/platforms/web/entry-runtime-with-compiler.js
+    // import Vue from 'vue' 从这里拿 Vue 相关代码
     entry: resolve('web/entry-runtime-with-compiler.js'),
     dest: resolve('dist/vue.js'),
     format: 'umd',

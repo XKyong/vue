@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>initAssetRegisters</title>
+</head>
+<body>
+  <div id="app">
+    {{msg}}
+  <p>{{ 130 | numFormat }}</p>
+  <p><input v-my-focus type="text"></p>
+  <my-component />
+  </div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    Vue.filter('numFormat', function (number) {
+      console.log('numFormat---', number)
+      return number.toFixed(2)
+    })
+
+    Vue.directive('myFocus', {
+      bind () {
+        console.log('bind is invoked!')
+      },
+      update () {
+        console.log('update is invoked!')
+      },
+      inserted (el) {
+        el.focus()
+      }
+    })
+
+    Vue.component('my-component', {
+      name: 'my-component1',
+      render (h) {
+        return h('h1', this.desc)
+      },
+      data () {
+        return {
+          desc: 'my-component'
+        }
+      }
+    })
+
+    new Vue({
+      el: '#app',
+      data: {
+        msg: 'hello vue'
+      }
+    })
+
+    console.dir(Vue)
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>initExtend</title>
+</head>
+<body>
+  <div id="app">
+    {{msg}}
+    <h1 id="extend-1"></h1>
+    <h1 id="extend-2"></h1>
+  </div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    const InitExtend1 = Vue.extend({
+      template: '<p>{{keyName}}</p>',
+      mixins: [],
+      name: 'InitExtend',
+      props: {
+        keyName: {
+          type: String,
+          default: 'extend-1'
+        }
+      },
+      data () {
+        return {
+          action: 'initExtend1'
+        }
+      },
+      watch: {
+        keyName (newVal) {
+          console.log('Vue.extend: watch key!')
+        }
+      },
+      created () {
+        console.log('Vue extend: created, this.key is', this.keyName)
+      }
+    })
+
+    const InitExtend2 = Vue.extend({
+      template: '<p>{{keyName}}</p>',
+      mixins: [],
+      name: 'InitExtend',
+      props: {
+        keyName: {
+          type: String,
+          default: 'extend-2'
+        }
+      },
+      data () {
+        return {
+          action: 'initExtend2'
+        }
+      }
+    })
+
+    new Vue({
+      data: {
+        msg: 'hello vue'
+      }
+    }).$mount('#app')
+
+    new InitExtend1().$mount('#extend-1')
+    new InitExtend2().$mount('#extend-2')
+
+    console.dir(InitExtend1)
+    console.dir(InitExtend2)
+    console.dir(Vue)
+  </script>
+</body>
+</html>

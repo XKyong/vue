@@ -29,6 +29,46 @@
 					"label": "$mount，解决 template 和 render 同时存在时执行优先级的问题"
 				}
 			]
+		},
+		{
+			"path": "src/core/util/env.js",
+			"bookmarks": [
+				{
+					"line": 5,
+					"column": 31,
+					"label": "浏览器环境判断工具函数"
+				}
+			]
+		},
+		{
+			"path": "src/core/index.js",
+			"bookmarks": [
+				{
+					"line": 6,
+					"column": 10,
+					"label": "给Vue构造函数挂载静态方法"
+				}
+			]
+		},
+		{
+			"path": "src/core/instance/index.js",
+			"bookmarks": [
+				{
+					"line": 9,
+					"column": 24,
+					"label": "Vue构造函数出处"
+				}
+			]
+		},
+		{
+			"path": "src/core/global-api/index.js",
+			"bookmarks": [
+				{
+					"line": 20,
+					"column": 48,
+					"label": "Vue静态成员的初始化"
+				}
+			]
 		}
 	]
 }
