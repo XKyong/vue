@@ -35,6 +35,8 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
+// 对于 vm.$options.props 中的属性：this.XXX -> this._props.XXX
+// 对于 vm.$options.data 中的属性：this.XXX -> this._data.XXX
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
@@ -48,6 +50,7 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+  // initProps 作用：将传入的 props 中的属性转换为响应式数据，并挂载到 vm 实例上
   if (opts.props) initProps(vm, opts.props)
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
@@ -103,6 +106,7 @@ function initProps (vm: Component, propsOptions: Object) {
     // during Vue.extend(). We only need to proxy props defined at
     // instantiation here.
     if (!(key in vm)) {
+      // 将 key 挂载到 vm 实例上，同时存储到 vm._props 中
       proxy(vm, `_props`, key)
     }
   }
@@ -111,6 +115,7 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
+  // 初始化 _data, 组件中 data 是函数，调用函数返回结果，否则直接返回 data
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -123,10 +128,13 @@ function initData (vm: Component) {
     )
   }
   // proxy data on instance
+  // 获取 data 中的所有树丛
   const keys = Object.keys(data)
+  // props / methods
   const props = vm.$options.props
   const methods = vm.$options.methods
   let i = keys.length
+  // 判断 data 中的成员是否和 props/methods 重名
   while (i--) {
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
@@ -144,6 +152,7 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      // 将 key 挂载到 vm 实例上，同时存储到 vm._data 中
       proxy(vm, `_data`, key)
     }
   }
@@ -155,6 +164,8 @@ export function getData (data: Function, vm: Component): any {
   // #7573 disable dep collection when invoking data getters
   pushTarget()
   try {
+    // 这里解释了为啥我们可以在 data 中通过 this.props.XX 的形式做赋值操作
+    // 因为先 initProps 再 initData，并且 data 函数中的 this 指向了 vm 实例
     return data.call(vm, vm)
   } catch (e) {
     handleError(e, vm, `data()`)
@@ -283,6 +294,9 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
     }
+
+    // 这里通过 bind， 让 methods 中方法的 this 指向 vm 实例
+    // bind 实际位置：src/shared/util.js
     vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
   }
 }
@@ -336,6 +350,8 @@ export function stateMixin (Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+
+  // 不允许直接修改 $data 和 $props 这两个属性（如果直接修改了会报上述的警告信息）
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 

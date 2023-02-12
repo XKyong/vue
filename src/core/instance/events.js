@@ -10,11 +10,17 @@ import {
 import { updateListeners } from '../vdom/helpers/index'
 
 export function initEvents (vm: Component) {
+  // 创建一个原型为 null 的对象
+  // 用于存储事件对应的事件名和事件处理函数
+  // 对象的属性就是 事件名, 属性值就是 事件处理函数 (数组的形式)
+  // 调用 $on 方法时, 会将事件存储到 _events 对象中
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events
+  // 获取父元素上附加的事件
   const listeners = vm.$options._parentListeners
   if (listeners) {
+    // 注册自定义事件, 将父元素附加的事件注册到当前组件上
     updateComponentListeners(vm, listeners)
   }
 }
@@ -49,6 +55,7 @@ export function updateComponentListeners (
   target = undefined
 }
 
+// 下边这几个方法的实现借助了“观察者模式”！ 
 export function eventsMixin (Vue: Class<Component>) {
   const hookRE = /^hook:/
   Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {

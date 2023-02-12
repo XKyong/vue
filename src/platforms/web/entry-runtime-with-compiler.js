@@ -54,6 +54,7 @@ Vue.prototype.$mount = function (
           }
         }
       } else if (template.nodeType) {
+        // 如果传入的就是一个 html 元素了，则直接拿 template。innerHTML 作为模板
         template = template.innerHTML
       } else {
         if (process.env.NODE_ENV !== 'production') {
@@ -62,6 +63,7 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      // 如果没有 template，获取 el 的 outerHTMl 作为模板
       template = getOuterHTML(el)
     }
     if (template) {
@@ -69,7 +71,8 @@ Vue.prototype.$mount = function (
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      
+      // 把 template 转换为 render 函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,

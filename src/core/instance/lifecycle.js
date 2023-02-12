@@ -38,6 +38,8 @@ export function initLifecycle (vm: Component) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+
+    // 将 vm 添加到父组件的 $children 列表中
     parent.$children.push(vm)
   }
 
@@ -56,6 +58,9 @@ export function initLifecycle (vm: Component) {
 }
 
 export function lifecycleMixin (Vue: Class<Component>) {
+
+  // _update方法的作用是把 VNode 渲染成真实的DOM
+  // 首次渲染会调用该方法，数据更新时也会
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
@@ -187,6 +192,8 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // 第1个参数传入的是 render 属性 或者 template 转换成的 render 属性
+      // vm._update 内部会将 虚拟DOM -> 真实DOM
       vm._update(vm._render(), hydrating)
     }
   }

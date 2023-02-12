@@ -56,7 +56,7 @@
 				{
 					"line": 9,
 					"column": 24,
-					"label": "Vue构造函数出处"
+					"label": "Vue构造函数出处，实例成员初始化"
 				}
 			]
 		},
@@ -67,6 +67,41 @@
 					"line": 20,
 					"column": 48,
 					"label": "Vue静态成员的初始化"
+				}
+			]
+		},
+		{
+			"path": "src/shared/util.js",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 11,
+					"label": "该文件的工具函数值得学习！"
+				}
+			]
+		},
+		{
+			"path": "src/core/instance/init.js",
+			"bookmarks": [
+				{
+					"line": 17,
+					"column": 53,
+					"label": "Vue.prototype._init方法"
+				}
+			]
+		},
+		{
+			"path": "src/core/instance/state.js",
+			"bookmarks": [
+				{
+					"line": 39,
+					"column": 7,
+					"label": "props和data，this.XXX属性返回值的源头"
+				},
+				{
+					"line": 49,
+					"column": 43,
+					"label": "初始化 vm 的 _props, methods, _data, computed, watch，并把它们挂载到 vm 实例上，相关属性做响应式处理"
 				}
 			]
 		}

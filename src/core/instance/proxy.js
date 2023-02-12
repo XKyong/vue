@@ -34,6 +34,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // isNative 位置在 src/core/util/env.js 中
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 

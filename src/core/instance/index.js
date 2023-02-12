@@ -6,6 +6,7 @@ import { lifecycleMixin } from './lifecycle'
 import { warn } from '../util/index'
 
 // 此处不使用 class 是为了后续方便给 Vue 实例混入实例成员，表现为方便往Vue的prototype上添加方法或者属性
+// 不是说使用 class 不行，而是如此使用后会显得代码风格不是很一致（Vue 类 和 Vue.prototype 用法）
 function Vue (options) {
   if (process.env.NODE_ENV !== 'production' &&
     !(this instanceof Vue)
@@ -20,7 +21,7 @@ function Vue (options) {
 initMixin(Vue)
 // 注册 vm 的 $data/$props/$set/$delete/$watch
 stateMixin(Vue)
-// 初始化事件相关的方法：$on/$off/$emit
+// 初始化事件相关的方法：$on/$once/$off/$emit
 eventsMixin(Vue)
 // 初始化生命周期相关的混入方法
 // _update/$forceUpdate/$destroy
