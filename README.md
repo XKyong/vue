@@ -11,6 +11,63 @@
   <a href="https://app.saucelabs.com/builds/50f8372d79f743a3b25fb6ca4851ca4c"><img src="https://app.saucelabs.com/buildstatus/vuejs" alt="Build Status"></a>
 </p>
 
+
+<h2 align="center">代码调试</h2>
+
+配套学习博客：[Vue.js 技术揭秘](https://ustbhuangyi.github.io/vue-analysis/)。
+
+为了便于调试，我们需要如下操作：
+
+**首先**，进入Vue的项目根目录，通过以下命令安装相关依赖（如果安装失败了则使用cnpm安装模块）：
+
+```
+$ npm install
+```
+
+**其次**，给 `package.json` 文件中的 dev 脚本中添加参数 `--sourcemap`（便于后续调试，内容如下），然后删除`dist`文件夹，重新输入`npm run dev`进行打包（打包的路径不能包含中文，否则可能打包失败）：
+
+```json
+{
+  scripts: {
+    "dev": "rollup -w -c scripts/config.js --sourcemap --environment TARGET:web-full-dev",
+  }
+}
+```
+
+对使用rollup进行打包的 `dev` 脚本中参数解释如下：
+
+- `-w`：监听文件的变化，文件变化自动重新打包
+- `-c`：执行rollup打包时遵循的配置内容
+- `--environment`：打包后的Vue的使用版本
+
+使用以上命令打包生成的目录结构如下：
+
+![](img/README/image-20210403155941682.png)
+
+**然后**，我们打开 `examples/grid` 文件夹（以此为例），更改 `index.html` 导入的Vue文件，将 `vue.min.js` 更改为上边打包生成的 `vue.js`，使用 `http-server` 或者 `Live Server` 打开该示例文件，结果如下：
+
+![image-20210403160117620](img/README/image-20210403160117620.png)
+
+最后，打开 Chrome 的调试工具中的 `source`面板（配置了 `--sourcemap` 才能看到如下的`src`文件夹），我们可以看到：
+
+![image-20230202213557908](img/README/image-20230202213557908.png)
+
+按F11，就可以进入Vue内部源码了，而不是 `dist` 文件夹中打包后的代码：
+
+![image-20230202213650750](img/README/image-20230202213650750.png)
+
+![image-20210403160512990](img/README/image-20210403160512990.png)
+
+至此，调试准备工作完成！
+
+另外，为了分析 Vue 的编译过程，这里选择 **`runtime + compiler`版本（即TARGET为`web-full-dev`）的Vue的入口文件为：`src/platforms/web/entry-runtime-with-compiler.js`** 作为分析入口文件。
+
+还有就是，当我们在项目开发中执行 `import Vue from 'vue'` 的时候，就是从这个入口开始去执行代码来初始化 Vue 的。
+
+
+
+
+
 <h2 align="center">Supporting Vue.js</h2>
 
 Vue.js is an MIT-licensed open source project with its ongoing development made possible entirely by the support of these awesome [backers](https://github.com/vuejs/vue/blob/dev/BACKERS.md). If you'd like to join them, please consider:
@@ -374,11 +431,3 @@ Thank you to all the people who already contributed to Vue!
 [MIT](https://opensource.org/licenses/MIT)
 
 Copyright (c) 2013-present, Yuxi (Evan) You
-
-
-
-### 终身学习，向死而生！
-
-
-
-### 终身学习，向死而生！
