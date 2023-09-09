@@ -13,8 +13,10 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
+  /*initMixin就做了一件事情，在Vue的原型上增加_init方法，构造Vue实例的时候会调用这个_init方法来初始化Vue实例*/
   // 给Vue的原型上添加 _init 方法
   // 合并 options / 初始化操作
+  // 这里的 options 就是业务代码传入 Vue 构造函数的参数！
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // a uid
@@ -42,6 +44,9 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 往 vm 上挂载 $options 对象，后续的代码逻辑针对的是 $options 对象了！
+      // $options 上有的东西如：
+      // {"components":{},"directives":{},"filters":{},"el":"#app","created":[null]}'
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},

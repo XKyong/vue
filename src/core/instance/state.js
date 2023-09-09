@@ -35,6 +35,7 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
+/*通过proxy函数将_data（或者_props等）上面的数据代理到vm上，这样就可以用app.text代替app._data.text了。*/
 // 对于 vm.$options.props 中的属性：this.XXX -> this._props.XXX
 // 对于 vm.$options.data 中的属性：this.XXX -> this._data.XXX
 export function proxy (target: Object, sourceKey: string, key: string) {

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05-vm-createElement</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 接着 03-vm-render 例子，这个示例大致了解下 createElement 方法执行过程发生了什么？
+    // 1.Vue.js 利用 createElement 方法创建 VNode，它定义在 src/core/vdom/create-element.js 中
+    // 2.createElement函数底层调用 _createElement 函数，其中的5个参数:
+    // (1) context 表示 VNode 的上下文环境，它是 Component 类型，即 vm 实例
+    // (2) tag 表示标签，它可以是一个字符串，也可以是一个 Component
+    // (3) data 表示 VNode 的数据，它是一个 VNodeData 类型，可以在 flow/vnode.js 中找到它的定义
+    // (4) children 表示当前 VNode 的子节点，它是任意类型的，它接下来需要被规范为标准的 VNode 数组
+    // (5) normalizationType 表示子节点规范的类型，类型不同规范的方法也就不一样，它主要是参考 render 函数是编译生成(SIMPLE_NORMALIZE=1)的还是用户手写的(ALWAYS_NORMALIZE=2)
+    // 3.这里根据 normalizationType 的不同，调用了 用户手写的render 的 normalizeChildren(children) ，还是 编译生成的render 的 simpleNormalizeChildren(children) 方法，它们的定义都在 src/core/vdom/helpers/normalzie-children.js 中
+    const vm = new Vue({
+      el: '#app',
+      // template: '<div id="root">{{this.message}}</div>',
+      render (createElement) {
+        // 这里的 this 指向 vm._renderProxy
+        console.log('render this---', this)
+        return createElement(`div`, {
+          attrs: {
+            id: 'app-r'
+          }
+        }, this.message)
+      },
+      data () {
+        return {
+          message: 'hello vue'
+        }
+      }
+    })
+  </script>
+</body>
+</html>

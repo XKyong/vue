@@ -53,6 +53,7 @@ export default class Watcher {
     if (isRenderWatcher) {
       vm._watcher = this
     }
+    // 渲染watcher/计算属性watcher/监听器watcher 都会存放到 vm._watchers 数组中
     vm._watchers.push(this)
     // options
     if (options) {
@@ -79,6 +80,8 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
+      // expOrFn 是字符串的时候，例如 watch: { 'person.name': function ... }
+      // parsePath('person.name') 会返回一个函数获取 person.name 的值
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -99,6 +102,7 @@ export default class Watcher {
    * Evaluate the getter, and re-collect dependencies.
    */
   get () {
+    // this 即为当前 watch 实例，调用 pushTarget 往 targetStack 中存放 watcher 
     pushTarget(this)
     let value
     const vm = this.vm
@@ -124,6 +128,7 @@ export default class Watcher {
 
   /**
    * Add a dependency to this directive.
+   * 收集 dep 对象作为当前 watcher 对象的依赖
    */
   addDep (dep: Dep) {
     const id = dep.id
@@ -131,6 +136,7 @@ export default class Watcher {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
+        // 添加新的订阅者 watcher 对象
         dep.addSub(this)
       }
     }
@@ -138,6 +144,8 @@ export default class Watcher {
 
   /**
    * Clean up for dependency collection.
+   * 将 Watcher 实例从 Dep 实例的 subs 数组中移除，
+   * 同时将 Watcher 实例中的 Dep 实例也移除
    */
   cleanupDeps () {
     let i = this.deps.length
@@ -163,6 +171,7 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
+    // 渲染 watcher 的 lazy 和 sync 均为 false
     if (this.lazy) {
       this.dirty = true
     } else if (this.sync) {
@@ -191,6 +200,7 @@ export default class Watcher {
         const oldValue = this.value
         this.value = value
         if (this.user) {
+          // 用户 watcher 会走到这个分支
           try {
             this.cb.call(this.vm, value, oldValue)
           } catch (e) {

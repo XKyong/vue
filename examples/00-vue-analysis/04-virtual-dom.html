@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>04-virtual-dom</title>
+  </head>
+  <body>
+    <h2>04-virtual-dom</h2>
+    <script>
+      // 接着上一个例子，调用 vm._render() 方法会生成 VNode，那这个 VNode 长什么样？
+      // 1.Vue.js 中 Virtual DOM 是借鉴了一个开源库 https://github.com/snabbdom/snabbdom
+      // 2.在 Vue.js 中，Virtual DOM 是用 VNode 这么一个 Class 去描述，它是定义在 src/core/vdom/vnode.js 中的
+      // 3.Virtual DOM 除了它的数据结构的定义，映射到真实的 DOM 实际上要经历 VNode 的 create、diff、patch 等过程
+      //  那么在 Vue.js 中，VNode 的 create 是通过之前提到的 createElement 方法创建的
+      
+      // 例子见 https://github.com/XKyong/snabbdom
+    </script>
+  </body>
+</html>

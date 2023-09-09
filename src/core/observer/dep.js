@@ -11,8 +11,11 @@ let uid = 0
  * directives subscribing to it.
  */
 export default class Dep {
+  // 静态属性，watcher 对象
   static target: ?Watcher;
+  // dep 实例 id
   id: number;
+  // dep 实例对应的 watcher 对象/订阅者数组
   subs: Array<Watcher>;
 
   constructor () {
@@ -20,16 +23,20 @@ export default class Dep {
     this.subs = []
   }
 
+  // 添加新的订阅者 watcher 对象
   addSub (sub: Watcher) {
     this.subs.push(sub)
   }
 
+  // 移除订阅者
   removeSub (sub: Watcher) {
     remove(this.subs, sub)
   }
 
-  depend () {
+  // 将观察对象和 watcher 建立依赖
+  depend () { 
     if (Dep.target) {
+      // 如果 target 存在，则把 dep 对象添加到 watcher 的依赖中
       Dep.target.addDep(this)
     }
   }
@@ -56,6 +63,8 @@ Dep.target = null
 const targetStack = []
 
 export function pushTarget (target: ?Watcher) {
+  // 入栈并将当前 watcher 赋值给 Dep.target
+  // 需要注意的是，每个组件会对应一个 watcher 实例（mountComponent中创建）
   targetStack.push(target)
   Dep.target = target
 }

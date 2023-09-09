@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01-newVue</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 这个示例大致了解下 new Vue 过程发生了什么？
+    // 1.这个 Vue 最终是来源于文件 src/core/instance/index.js 中暴露出来的 Vue 构造函数
+    // 2.new Vue 的过程调用了 this._init，即 src/core/instance/init.js 文件中的 Vue.prototype._init 方法
+    // 3.Vue.prototype._init 方法内部的初始化主要就干了几件事情，
+    //   合并配置，初始化生命周期，初始化事件中心，初始化渲染，初始化 data、props、computed、watcher 等等。
+    const vm = new Vue({
+      el: '#app',
+      data () {
+        return {
+          message: 'hello vue'
+        }
+      },
+      created () {
+        console.log('this.message---', this.message)
+        // this.message 底层其实访问的是 this._data.message，这个 this 指向 vm 实例
+        console.log('this._data.message---', this._data.message)
+      }
+    })
+  </script>
+</body>
+</html>

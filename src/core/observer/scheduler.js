@@ -87,6 +87,7 @@ function flushSchedulerQueue () {
   // as we run existing watchers
   for (index = 0; index < queue.length; index++) {
     watcher = queue[index]
+    // 触发 beforeUpdate 钩子函数
     if (watcher.before) {
       watcher.before()
     }
@@ -163,14 +164,17 @@ function callActivatedHooks (queue) {
  */
 export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
+  // "has[id] == null" 的判断可以避免 watcher 被重复处理
   if (has[id] == null) {
     has[id] = true
     if (!flushing) {
+      // 即 queue 未被处理，直接将 watcher 放到队列末尾
       queue.push(watcher)
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
       let i = queue.length - 1
+      // index 表明队列当前正在被处理的watcher的索引值
       while (i > index && queue[i].id > watcher.id) {
         i--
       }

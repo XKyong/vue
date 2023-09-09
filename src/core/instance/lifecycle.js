@@ -69,8 +69,12 @@ export function lifecycleMixin (Vue: Class<Component>) {
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
+    /*基于后端渲染Vue.prototype.__patch__被用来作为一个入口*/
     if (!prevVnode) {
       // initial render
+      // _update 的核心就是调用 vm.__patch__ 方法
+      // 在 web 平台中它的定义在 src/platforms/web/runtime/index.js 中
+      // vm.$el 会被替换为 vm.__patch__ 返回的 DOM 元素，即用户传入或者编译生成的 render 函数中 createElement 函数生成的 VNode 转换而成的真实DOM
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates
@@ -78,7 +82,9 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
     restoreActiveInstance()
     // update __vue__ reference
+    /*更新新的实例对象的__vue__*/
     if (prevEl) {
+      // 手动置空
       prevEl.__vue__ = null
     }
     if (vm.$el) {
@@ -143,6 +149,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
   }
 }
 
+/*挂载组件*/
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -150,6 +157,7 @@ export function mountComponent (
 ): Component {
   vm.$el = el
   if (!vm.$options.render) {
+    /*render函数不存在的时候创建一个空的VNode节点*/
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
@@ -193,6 +201,7 @@ export function mountComponent (
   } else {
     updateComponent = () => {
       // 第1个参数传入的是 render 属性 或者 template 转换成的 render 属性
+      // vm._render() 执行后会生成 VNode
       // vm._update 内部会将 虚拟DOM -> 真实DOM
       vm._update(vm._render(), hydrating)
     }
@@ -201,6 +210,10 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // 1.这里对该vm注册一个Watcher实例，Watcher的getter为updateComponent函数，
+  // 用于触发所有渲染所需要用到的数据的getter，进行依赖收集，该Watcher实例会存在所有渲染所需数据的闭包Dep中
+  // 2.Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，
+  // 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {
@@ -212,7 +225,9 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
+  // vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例
   if (vm.$vnode == null) {
+    // 设置 vm._isMounted 为 true，表示当前 vm 实例已挂载
     vm._isMounted = true
     callHook(vm, 'mounted')
   }

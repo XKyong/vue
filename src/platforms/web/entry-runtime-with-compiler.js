@@ -27,6 +27,9 @@ Vue.prototype.$mount = function (
 
   /* istanbul ignore if */
   // 1. el 不能是 body 或者 html 
+  // 为啥不能是 body 和 html？
+  // 因为这个 el 最终是会被从DOM树中移除的，涉及代码在 src/core/vdom/patch.js 文件中 removeVnodes([oldVnode], 0, 0) 这行代码
+  // 取而代之的会是用户传入或编译生成的 render 函数中 createElement 生成的 VNode 实例树转换成的真实的 DOM 树
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
@@ -42,7 +45,7 @@ Vue.prototype.$mount = function (
     let template = options.template
     if (template) {
       if (typeof template === 'string') {
-        // 如果 template 是 id 选择器
+        // 如果 template 是 id 选择器，则通过该 id 选择器调用 document.querySelector 拿到 dom 节点
         if (template.charAt(0) === '#') {
           template = idToTemplate(template)
           /* istanbul ignore if */
@@ -54,7 +57,7 @@ Vue.prototype.$mount = function (
           }
         }
       } else if (template.nodeType) {
-        // 如果传入的就是一个 html 元素了，则直接拿 template。innerHTML 作为模板
+        // 如果传入的就是一个 html 元素了，则直接拿 template.innerHTML 作为模板
         template = template.innerHTML
       } else {
         if (process.env.NODE_ENV !== 'production') {
@@ -64,6 +67,7 @@ Vue.prototype.$mount = function (
       }
     } else if (el) {
       // 如果没有 template，获取 el 的 outerHTMl 作为模板
+      // 获取的内容形如："<div id=\"app\">{{message}}</div>"
       template = getOuterHTML(el)
     }
     if (template) {
@@ -100,6 +104,9 @@ Vue.prototype.$mount = function (
  * of SVG elements in IE as well.
  */
 function getOuterHTML (el: Element): string {
+  // 对于 <div id="app">hello vue</div> 这样的el：
+  // el.outerHTML 结果为：'<div id="app">hello vue</div>'
+  // el.innerHTML 结果为：'hello vue'
   if (el.outerHTML) {
     return el.outerHTML
   } else {

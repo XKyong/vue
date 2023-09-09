@@ -84,7 +84,7 @@
 			"path": "src/core/instance/init.js",
 			"bookmarks": [
 				{
-					"line": 17,
+					"line": 19,
 					"column": 53,
 					"label": "Vue.prototype._init方法"
 				}
@@ -94,14 +94,59 @@
 			"path": "src/core/instance/state.js",
 			"bookmarks": [
 				{
-					"line": 39,
+					"line": 40,
 					"column": 7,
 					"label": "props和data，this.XXX属性返回值的源头"
 				},
 				{
-					"line": 49,
+					"line": 50,
 					"column": 43,
 					"label": "初始化 vm 的 _props, methods, _data, computed, watch，并把它们挂载到 vm 实例上，相关属性做响应式处理"
+				}
+			]
+		},
+		{
+			"path": "src/core/observer/index.js",
+			"bookmarks": [
+				{
+					"line": 36,
+					"column": 23,
+					"label": "Observer 类"
+				},
+				{
+					"line": 117,
+					"column": 77,
+					"label": "响应式处理入口"
+				}
+			]
+		},
+		{
+			"path": "src/core/instance/lifecycle.js",
+			"bookmarks": [
+				{
+					"line": 216,
+					"column": 42,
+					"label": "Watcher实例首次被创建的位置"
+				}
+			]
+		},
+		{
+			"path": "src/core/observer/watcher.js",
+			"bookmarks": [
+				{
+					"line": 105,
+					"column": 20,
+					"label": "watcher被作为 Dep.target 的执行代码"
+				}
+			]
+		},
+		{
+			"path": "src/core/vdom/patch.js",
+			"bookmarks": [
+				{
+					"line": 558,
+					"column": 42,
+					"label": "用户使用v-for时，绑定的VNode实例包含相同key报错的出处"
 				}
 			]
 		}

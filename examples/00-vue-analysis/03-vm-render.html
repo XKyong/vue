@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03-vm-render</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 接着上一个例子，这个示例大致了解下 vm._render() 方法执行过程发生了什么？
+    // 1.Vue.prototype._render 方法在 src/core/instance/render.js 文件中
+    // 2._render 方法的核心逻辑是：vnode = render.call(vm._renderProxy, vm.$createElement) 这行代码
+    //  (1) render 函数是下边用户传入的 render，或者调用 compileToFunctions 函数将下边 template 属性转换成的 render（该render函数是 anonymous()，不接收 h 或者 createElement 函数）
+    //  (2) vm._renderProxy 属性的定义在 src/core/instance/init.js 文件中，指向 Proxy 实例 或者当前 vm 实例（如果 Proxy 语法在浏览器中不支持的话）
+    //  (3) vm.$createElement 方法的定义在 src/core/instance/render.js 中的 initRender 方法 
+    //  也即为传入上述 render 函数中的 h 或者 createElement 函数
+    const vm = new Vue({
+      el: '#app',
+      // template: '<div id="root">{{this.message}}</div>',
+      render (createElement) {
+        // 这里的 this 指向 vm._renderProxy
+        console.log('render this---', this)
+        return createElement(`div`, {
+          attrs: {
+            id: 'app-r'
+          }
+        }, this.message)
+      },
+      data () {
+        return {
+          message: 'hello vue'
+        }
+      }
+    })
+  </script>
+</body>
+</html>

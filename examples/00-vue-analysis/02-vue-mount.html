@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02-vue-mount</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 这个示例大致了解下 vm.$mount(vm.$options.el) 方法执行过程发生了什么？
+    // 1.包含 compiler 版本的 $mount 定义在 src/platform/web/entry-runtime-with-compiler.js 文件中
+    // 2.而上述文件中原先原型上的 $mount 方法在 src/platform/web/runtime/index.js 中定义
+    // 3.之所以搞2个 $mount 是为了复用，compiler 版本的 $mount 适用于 runtime+compiler 版本的Vue，而原先原型上的 $mount 适用于 runtime only 版本的Vue
+    // 4.以上2个跟渲染相关的属性的生效优先级：render > template
+    //   可单独传入 el 属性，不需要额外传入 template 和 render；
+    //   如果传入了 template 或者 render 属性，则 el 属性也必须一同传入
+    // 5.在 Vue 2.0 版本中，所有 Vue 的组件的渲染最终都需要 render 方法，无论我们是用单文件 .vue 方式开发组件，还是写了 el 或者 template 属性，最终都会转换成 render 方法
+    // 6.$mount 中最终的核心逻辑：
+    //   (1) 调用 compileToFunctions 函数把 template 字符串转为 render 函数
+    //   (2) 然后在 src/core/instance/lifecycle.js 的 mountComponent 函数中的 updateComponent = () => { vm._update(vm._render(), hydrating) }，
+    //   通过 vm._render() 生成VNode，然后调用 vm._update 将 VNode -> 真实DOM 渲染到浏览器上
+    const vm = new Vue({
+      el: '#app',
+      template: '<div id="root">{{this.message}}</div>',
+      render (createElement) {
+        return createElement(`div`, {
+          attrs: {
+            id: 'app-r'
+          }
+        }, this.message)
+      },
+      data () {
+        return {
+          message: 'hello vue'
+        }
+      }
+    })
+  </script>
+</body>
+</html>

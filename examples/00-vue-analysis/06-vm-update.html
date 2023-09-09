@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>06-vm-update</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    // 接着上一个例子，这个示例大致了解下 vm._update() 方法执行过程发生了什么？
+    // 1._update 方法的作用是把 VNode 渲染成真实的 DOM，它的定义在 src/core/instance/lifecycle.js 中
+    // 2._update 的核心就是调用 vm.__patch__ 方法，在 web 平台中它的定义在 src/platforms/web/runtime/index.js 中
+    //  最终调用的 patch 函数在浏览器端渲染中定义在 src/core/vdom/patch.js 中，由 createPatchFunction 返回
+    // 3.createPatchFunction 返回的 patch 函数接收 4 个参数：
+    // (1) oldVnode 表示旧的 VNode 节点，它也可以不存在或者是一个 DOM 对象
+    // (2) vnode 表示执行 _render 后返回的 VNode 的节点
+    // (3) hydrating 表示是否是服务端渲染
+    // (4) removeOnly 是给 transition-group 用的
+    // 4.patch 的逻辑看上去相对复杂，因为它有着非常多的分支逻辑，本示例侧重用如下例子走完涉及流程，即首次渲染流程，
+    // 那么对于 这样一行代码：vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)，则：
+    // (1) 传入的 vm.$el 对应的是例子中 id 为 app 的 DOM 对象
+    // (2) vnode 对应的是调用 render 函数的返回值
+    // (3) hydrating 在非服务端渲染情况下为 false
+    // (4) removeOnly 为 false
+    // 以上边的实参传入，调试走完涉及流程，
+    // 5.流程总结就是:
+    // patch 方法中，首次渲染我们调用了 createElm 方法，这里传入的 parentElm 是 oldVnode.elm 的父元素，
+    // 在我们的例子是 id 为 #app div 的父元素，也就是 Body，
+    // 实际上整个过程就是递归创建了一个完整的 DOM 树并插入到 Body 上，
+    // 最后，我们根据之前递归 createElm 生成的 vnode 插入顺序队列，执行相关的 insert 钩子函数
+    const vm = new Vue({
+      el: '#app',
+      // template: '<div id="root">{{this.message}}</div>',
+      render (createElement) {
+        // 这里的 this 指向 vm._renderProxy
+        console.log('render this---', this)
+        return createElement(`div`, {
+          attrs: {
+            id: 'app-r'
+          }
+        }, this.message)
+      },
+      data () {
+        return {
+          message: 'hello vue'
+        }
+      }
+    })
+  </script>
+</body>
+</html>
