@@ -27,6 +27,11 @@
 					"line": 18,
 					"column": 27,
 					"label": "$mount，解决 template 和 render 同时存在时执行优先级的问题"
+				},
+				{
+					"line": 98,
+					"column": 40,
+					"label": "调用 src\\platforms\\web\\runtime\\index.js 中的 $mount 方法"
 				}
 			]
 		},
@@ -87,6 +92,11 @@
 					"line": 19,
 					"column": 53,
 					"label": "Vue.prototype._init方法"
+				},
+				{
+					"line": 92,
+					"column": 31,
+					"label": "调用 vm.$mount 将用户传入的 el 属性替换渲染为真实 DOM"
 				}
 			]
 		},
@@ -124,7 +134,27 @@
 			"path": "src/core/instance/lifecycle.js",
 			"bookmarks": [
 				{
-					"line": 216,
+					"line": 63,
+					"column": 72,
+					"label": "Vue.prototype._update 方法定义出处"
+				},
+				{
+					"line": 68,
+					"column": 41,
+					"label": "vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例"
+				},
+				{
+					"line": 164,
+					"column": 77,
+					"label": "在 runtime-only 版本的Vue中使用template属性报错的出处"
+				},
+				{
+					"line": 206,
+					"column": 41,
+					"label": "调用 vm._update 将 vm._render 返回的 VNode 实例转换成真实 DOM "
+				},
+				{
+					"line": 217,
 					"column": 42,
 					"label": "Watcher实例首次被创建的位置"
 				}
@@ -144,9 +174,44 @@
 			"path": "src/core/vdom/patch.js",
 			"bookmarks": [
 				{
+					"line": 155,
+					"column": 22,
+					"label": "createElm 的作用是通过虚拟节点创建真实的 DOM 并插入到它的父节点中"
+				},
+				{
+					"line": 338,
+					"column": 65,
+					"label": "createChildren 遍历子虚拟节点，递归调用 createElm"
+				},
+				{
 					"line": 558,
 					"column": 42,
 					"label": "用户使用v-for时，绑定的VNode实例包含相同key报错的出处"
+				},
+				{
+					"line": 810,
+					"column": 66,
+					"label": "vm._update中的核心 patch 函数出处"
+				}
+			]
+		},
+		{
+			"path": "src/core/instance/render.js",
+			"bookmarks": [
+				{
+					"line": 22,
+					"column": 59,
+					"label": "vm.$vnode 表示当前 Vue 实例的父 VNode 实例，所以它为 Null 则表示当前是根 Vue 的实例"
+				},
+				{
+					"line": 36,
+					"column": 73,
+					"label": "传入用户手写的 render 函数中的 h 函数出处"
+				},
+				{
+					"line": 98,
+					"column": 61,
+					"label": "调用 render 函数生成 Vnode 实例"
 				}
 			]
 		}

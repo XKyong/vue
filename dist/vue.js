@@ -3616,6 +3616,7 @@
     vm._vnode = null; // the root of the child tree
     vm._staticTrees = null; // v-once cached trees
     var options = vm.$options;
+    // vm.$vnode 表示当前 Vue 实例的父 VNode 实例，所以它为 Null 则表示当前是根 Vue 的实例
     var parentVnode = vm.$vnode = options._parentVnode; // the placeholder node in parent tree
     var renderContext = parentVnode && parentVnode.context;
     vm.$slots = resolveSlots(options._renderChildren, renderContext);
@@ -3628,7 +3629,7 @@
     vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
     // normalization is always applied for the public version, used in
     // user-written render functions.
-    // new Vue操作时，传入 render 方法的 h 就是这里的 $createElement
+    // new Vue操作时，传入 render 方法的 h 就是这里的 vm.$createElement
     vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
 
     // $attrs & $listeners are exposed for easier HOC creation.
@@ -4086,6 +4087,7 @@
       var prevEl = vm.$el;
       var prevVnode = vm._vnode;
       var restoreActiveInstance = setActiveInstance(vm);
+      // vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例
       vm._vnode = vnode;
       // Vue.prototype.__patch__ is injected in entry points
       // based on the rendering backend used.

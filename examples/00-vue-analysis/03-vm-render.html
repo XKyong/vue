@@ -17,6 +17,7 @@
     //  (2) vm._renderProxy 属性的定义在 src/core/instance/init.js 文件中，指向 Proxy 实例 或者当前 vm 实例（如果 Proxy 语法在浏览器中不支持的话）
     //  (3) vm.$createElement 方法的定义在 src/core/instance/render.js 中的 initRender 方法 
     //  也即为传入上述 render 函数中的 h 或者 createElement 函数
+    // 3.传入 render 函数中的 h 或者 createElement 函数，内部其实调用的是 src/core/vdom/create-element.js 中的 createElement 函数来创建的 VNode 实例
     const vm = new Vue({
       el: '#app',
       // template: '<div id="root">{{this.message}}</div>',
