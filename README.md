@@ -14,6 +14,10 @@
 
 <h2 align="center">代码调试</h2>
 
+Vue.js内部运行机制流程图：
+
+![](img/README/newVue.png)
+
 配套学习博客：[Vue.js 技术揭秘](https://ustbhuangyi.github.io/vue-analysis/)。
 
 为了便于调试，我们需要如下操作：
