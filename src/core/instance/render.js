@@ -92,10 +92,16 @@ export function renderMixin (Vue: Class<Component>) {
       // when parent component is patched.
       currentRenderingInstance = vm
       // _render 方法最核心的一行代码
-      // 调用 用户定义/模板渲染 render
-      // render (h) { return h('div', 'hello world') }
-      // vm.$createElement 就是参数 h
-      // h 的作用就是生成虚拟 DOM
+      // 1.调用 用户定义/模板渲染 render，例如 render (h) { return h('div', 'hello world') }
+      // vm.$createElement 就是参数 h, h 的作用就是生成虚拟 DOM
+      // 2.此时生成的 VNode 实例中 elm 属性是 undefined 的（代码手动指定），
+      // elm 具体被赋值得等到 src\core\vdom\patch.js 中 createElm 的下边几种代码：
+      // (1) 非文本或注释节点 
+      // vnode.elm = vnode.ns
+      //   ? nodeOps.createElementNS(vnode.ns, tag)
+      //   : nodeOps.createElement(tag, vnode)
+      // (2) 文本或注释节点
+      // vnode.elm = nodeOps.createComment(vnode.text)
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

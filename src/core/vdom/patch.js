@@ -227,6 +227,8 @@ export function createPatchFunction (backend) {
         createChildren(vnode, children, insertedVnodeQueue)
         if (isDef(data)) {
           // 执行所有的 create 的钩子并把 vnode push 到 insertedVnodeQueue 中
+          // examples/00-vue-analysis 中 06-vm-update 例子中 render 属性中 createElement 函数传入的 attrs: { id: 'app-r' } 属性，
+          // 上边的 id 属性值是在执行 invokeCreateHooks 函数过程中给 vnode.elm（即 div 元素）添加上的！
           invokeCreateHooks(vnode, insertedVnodeQueue)
         }
         // 把 DOM 插入到父节点中，因为是递归调用，子元素会优先调用 insert，所以整个 vnode 树节点的插入顺序是“先子后父“
@@ -868,6 +870,11 @@ export function createPatchFunction (backend) {
         const parentElm = nodeOps.parentNode(oldElm)
 
         // create new node
+        // 1.对于 examples/00-vue-analysis 中的 06-vm-update 例子，
+        // createElm 执行完，用户传入的 render 属性中 createElement 函数创建的 VNode 实例转换出的 真实DOM，
+        // 会被插入到页面上。此时，会看到页面上 body 元素中有2个 div，上边一个是用户传入的 el 属性对应的 div#app，
+        // 下边一个是 createElement 创建的 VNode 实例转换出的 真实DOM，即 div#app-r
+        // 2.该 createElm 后续的代码 removeVnodes([oldVnode], 0, 0)，会把 el 属性对应的 div#app 从 body 元素中移除掉
         createElm(
           vnode,
           insertedVnodeQueue,

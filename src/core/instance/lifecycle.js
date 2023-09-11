@@ -203,7 +203,7 @@ export function mountComponent (
     updateComponent = () => {
       // 第1个参数传入的是 render 属性 或者 template 转换成的 render 属性
       // vm._render() 执行后会生成 VNode
-      // vm._update 内部会将 虚拟DOM -> 真实DOM
+      // vm._update 内部会将 虚拟DOM -> 真实DOM，并将真实 DOM 渲染到网页上
       vm._update(vm._render(), hydrating)
     }
   }

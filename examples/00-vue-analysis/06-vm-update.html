@@ -34,6 +34,7 @@
     // 6.至此，我们可以简单总结下从初始化 Vue 到最终渲染DOM的整个过程：
     // new Vue -> init -> $mount -> compile -> render -> vnode -> patch -> DOM
     const vm = new Vue({
+      // 实际调试过程中会发现，el 对应的 DOM 最终会被 render 函数转换成的DOM替换掉！
       el: '#app',
       // template: '<div id="root">{{this.message}}</div>',
       render (createElement) {

@@ -94,6 +94,16 @@
 					"label": "Vue.prototype._init方法"
 				},
 				{
+					"line": 73,
+					"column": 32,
+					"label": "beforeCreate 生命周期钩子触发位置"
+				},
+				{
+					"line": 82,
+					"column": 27,
+					"label": "created 生命周期钩子触发位置"
+				},
+				{
 					"line": 92,
 					"column": 31,
 					"label": "调用 vm.$mount 将用户传入的 el 属性替换渲染为真实 DOM"
@@ -144,9 +154,24 @@
 					"label": "vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例"
 				},
 				{
+					"line": 113,
+					"column": 33,
+					"label": "beforeDestroy 生命周期钩子触发位置"
+				},
+				{
+					"line": 138,
+					"column": 29,
+					"label": "destroyed 生命周期钩子触发位置"
+				},
+				{
 					"line": 164,
 					"column": 77,
 					"label": "在 runtime-only 版本的Vue中使用template属性报错的出处"
+				},
+				{
+					"line": 180,
+					"column": 29,
+					"label": "beforeMount 生命周期钩子触发位置"
 				},
 				{
 					"line": 206,
@@ -157,6 +182,21 @@
 					"line": 217,
 					"column": 42,
 					"label": "Watcher实例首次被创建的位置"
+				},
+				{
+					"line": 232,
+					"column": 27,
+					"label": "mounted 生命周期钩子触发位置"
+				},
+				{
+					"line": 338,
+					"column": 29,
+					"label": "activated 生命周期钩子触发位置"
+				},
+				{
+					"line": 354,
+					"column": 31,
+					"label": "deactivated 生命周期钩子触发位置"
 				}
 			]
 		},
@@ -179,17 +219,22 @@
 					"label": "createElm 的作用是通过虚拟节点创建真实的 DOM 并插入到它的父节点中"
 				},
 				{
-					"line": 338,
+					"line": 189,
+					"column": 57,
+					"label": "Unknown custom element报错出处"
+				},
+				{
+					"line": 340,
 					"column": 65,
 					"label": "createChildren 遍历子虚拟节点，递归调用 createElm"
 				},
 				{
-					"line": 558,
+					"line": 560,
 					"column": 42,
 					"label": "用户使用v-for时，绑定的VNode实例包含相同key报错的出处"
 				},
 				{
-					"line": 810,
+					"line": 812,
 					"column": 66,
 					"label": "vm._update中的核心 patch 函数出处"
 				}
@@ -209,7 +254,7 @@
 					"label": "传入用户手写的 render 函数中的 h 函数出处"
 				},
 				{
-					"line": 98,
+					"line": 104,
 					"column": 61,
 					"label": "调用 render 函数生成 Vnode 实例"
 				}
