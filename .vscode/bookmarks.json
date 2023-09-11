@@ -184,6 +184,11 @@
 					"label": "Watcher实例首次被创建的位置"
 				},
 				{
+					"line": 220,
+					"column": 36,
+					"label": "beforeUpdate 生命周期钩子触发位置"
+				},
+				{
 					"line": 232,
 					"column": 27,
 					"label": "mounted 生命周期钩子触发位置"
@@ -257,6 +262,16 @@
 					"line": 104,
 					"column": 61,
 					"label": "调用 render 函数生成 Vnode 实例"
+				}
+			]
+		},
+		{
+			"path": "src/core/observer/scheduler.js",
+			"bookmarks": [
+				{
+					"line": 136,
+					"column": 29,
+					"label": "updated 生命周期钩子触发位置"
 				}
 			]
 		}
