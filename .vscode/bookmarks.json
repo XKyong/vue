@@ -191,7 +191,7 @@
 				{
 					"line": 232,
 					"column": 27,
-					"label": "mounted 生命周期钩子触发位置"
+					"label": "mounted 生命周期钩子触发位置1"
 				},
 				{
 					"line": 338,
@@ -272,6 +272,16 @@
 					"line": 136,
 					"column": 29,
 					"label": "updated 生命周期钩子触发位置"
+				}
+			]
+		},
+		{
+			"path": "src/core/vdom/create-component.js",
+			"bookmarks": [
+				{
+					"line": 70,
+					"column": 44,
+					"label": "mounted 生命周期钩子触发位置2"
 				}
 			]
 		}
