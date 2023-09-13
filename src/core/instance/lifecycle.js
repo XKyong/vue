@@ -29,10 +29,12 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
+/*初始化生命周期*/
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  /* 将当前vm对象存储到 vm 的 parent组件中（保证parent组件是非抽象组件，比如keep-alive） */
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
@@ -40,6 +42,8 @@ export function initLifecycle (vm: Component) {
     }
 
     // 将 vm 添加到父组件的 $children 列表中
+    // parent 是 vm 的父组件实例
+    // vm 是当前组件实例
     parent.$children.push(vm)
   }
 
@@ -66,7 +70,9 @@ export function lifecycleMixin (Vue: Class<Component>) {
     const prevEl = vm.$el
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)
-    // vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例
+    // vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例，是一个渲染 VNode 实例（即会最终渲染到页面成为真实DOM的VNode实例）
+    // vm._vnode 是 vm.$vnode 的子 VNode 实例
+    // 作为对照，vm.$vnode 是当前 vm 实例的父 VNode 实例，是一个占位符 VNode 实例（即）
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
@@ -111,7 +117,9 @@ export function lifecycleMixin (Vue: Class<Component>) {
     if (vm._isBeingDestroyed) {
       return
     }
+    /* 调用beforeDestroy钩子 */
     callHook(vm, 'beforeDestroy')
+    /* 标志位 */
     vm._isBeingDestroyed = true
     // remove self from parent
     const parent = vm.$parent
@@ -119,6 +127,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
       remove(parent.$children, vm)
     }
     // teardown watchers
+    /* 该组件下的所有Watcher从其所在的Dep中释放 */
     if (vm._watcher) {
       vm._watcher.teardown()
     }
@@ -136,8 +145,10 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // invoke destroy hooks on current rendered tree
     vm.__patch__(vm._vnode, null)
     // fire destroyed hook
+    /* 调用destroyed钩子 */
     callHook(vm, 'destroyed')
     // turn off all instance listeners.
+    /* 移除所有事件监听 */
     vm.$off()
     // remove __vue__ reference
     if (vm.$el) {
@@ -180,6 +191,7 @@ export function mountComponent (
   }
   callHook(vm, 'beforeMount')
 
+  /*updateComponent作为Watcher对象的getter函数，用来依赖收集*/
   let updateComponent
   /* istanbul ignore if */
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -315,6 +327,7 @@ export function updateChildComponent (
   }
 }
 
+/*判断组件是否已经是active的*/
 function isInInactiveTree (vm) {
   while (vm && (vm = vm.$parent)) {
     if (vm._inactive) return true
@@ -322,6 +335,7 @@ function isInInactiveTree (vm) {
   return false
 }
 
+/*使子组件状态都改编成active同时调用activated钩子*/
 export function activateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = false
@@ -333,9 +347,11 @@ export function activateChildComponent (vm: Component, direct?: boolean) {
   }
   if (vm._inactive || vm._inactive === null) {
     vm._inactive = false
+    /*递归*/
     for (let i = 0; i < vm.$children.length; i++) {
       activateChildComponent(vm.$children[i])
     }
+    /*触发actived钩子*/
     callHook(vm, 'activated')
   }
 }
@@ -356,6 +372,7 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
   }
 }
 
+/*调用钩子函数并且触发钩子事件*/
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
   pushTarget()

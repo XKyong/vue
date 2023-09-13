@@ -96,6 +96,8 @@ Vue.prototype.$mount = function (
   }
 
   // 3. 如果传入了 render 方法，则执行 render，不执行上述 template 的转换操作
+  // 传入的是组件的话，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
+  // 则直接执行下边的代码，因为传入该 Vue.prototype.$mount 方法的 el 参数是 undefined 的！
   return mount.call(this, el, hydrating)
 }
 

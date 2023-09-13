@@ -255,6 +255,7 @@ export function createPatchFunction (backend) {
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
       if (isDef(i = i.hook) && isDef(i = i.init)) {
+        // 执行 data.hook.init 这个 hook 函数
         i(vnode, false /* hydrating */)
       }
       // after calling the init hook, if the vnode is a child component
@@ -269,6 +270,8 @@ export function createPatchFunction (backend) {
       if (isDef(vnode.componentInstance)) {
         /*初始化组件*/
         initComponent(vnode, insertedVnodeQueue)
+        // 如果是组件实例的 patch 操作而不是普通DOM节点，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
+        // 则该组件实例对应的DOM被插入到页面中是在下边的 insert 函数逻辑中
         insert(parentElm, vnode.elm, refElm)
         if (isTrue(isReactivated)) {
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)

@@ -35,10 +35,12 @@ export function initMixin (Vue: Class<Component>) {
 
     // a flag to avoid this being observed
     // 如果是 Vue 实例，则不需要被 observe
+    /*一个防止vm实例自身被观察的标志位*/
     vm._isVue = true
     // merge options
     // 将用户传入的options与Vue本身实例化过程中创建的options进行合并
     if (options && options._isComponent) {
+      // 传入的是组件实例而非 DOM 元素，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件就会来到这
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
@@ -89,7 +91,10 @@ export function initMixin (Vue: Class<Component>) {
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 对于传入的是组件实例，则 vm.$mount 不会被执行，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件
+    // 组件的 $mount 在 src\core\vdom\create-component.js 中的 componentVNodeHooks.init 钩子函数中
     if (vm.$options.el) {
+      /*挂载组件*/
       vm.$mount(vm.$options.el)
     }
   }
@@ -98,7 +103,9 @@ export function initMixin (Vue: Class<Component>) {
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.
+  // 存储占位符 VNode 实例
   const parentVnode = options._parentVnode
+  // 存储当前 vm 实例
   opts.parent = options.parent
   opts._parentVnode = parentVnode
 
@@ -116,12 +123,19 @@ export function initInternalComponent (vm: Component, options: InternalComponent
 
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
+  /*如果存在父类的时候*/
   if (Ctor.super) {
+    /*对其父类进行resolveConstructorOptions，获取父类的options*/
     const superOptions = resolveConstructorOptions(Ctor.super)
+    /*之前已经缓存起来的父类的options，用以检测是否更新*/
     const cachedSuperOptions = Ctor.superOptions
+    /*对比当前父类的option以及缓存中的option，两个不一样则代表已经被更新*/
     if (superOptions !== cachedSuperOptions) {
       // super option changed,
       // need to resolve new options.
+      /*父类的opiton已经被改变，需要去处理新的option*/
+
+      /*把新的option缓存起来*/
       Ctor.superOptions = superOptions
       // check if there are any late-modified/attached options (#4976)
       const modifiedOptions = resolveModifiedOptions(Ctor)
