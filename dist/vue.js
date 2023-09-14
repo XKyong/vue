@@ -3777,6 +3777,7 @@
         vnode = createEmptyVNode();
       }
       // set parent
+      // 设置渲染 VNode 实例的 vnode.parent 属性为占位符 VNode 实例 
       vnode.parent = _parentVnode;
       return vnode
     };
@@ -4120,7 +4121,7 @@
 
       // 将 vm 添加到父组件的 $children 列表中
       // parent 是 vm 的父组件实例
-      // vm 是当前组件实例
+      // vm 是当前组件实例，如果传入的是类似 App 这样的组件实例，则是 VueComponent 类的实例
       parent.$children.push(vm);
     }
 
@@ -4147,9 +4148,27 @@
       var prevEl = vm.$el;
       var prevVnode = vm._vnode;
       var restoreActiveInstance = setActiveInstance(vm);
-      // vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例，是一个渲染 VNode 实例（即会最终渲染到页面成为真实DOM的VNode实例）
+      // 1.vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例，是一个渲染 VNode 实例（即会最终渲染到页面成为真实DOM的VNode实例）
       // vm._vnode 是 vm.$vnode 的子 VNode 实例
-      // 作为对照，vm.$vnode 是当前 vm 实例的父 VNode 实例，是一个占位符 VNode 实例（即）
+      // 2.作为对照，vm.$vnode 是当前 vm 实例的父 VNode 实例，是一个占位符 VNode 实例
+      // 3.如何理解渲染 VNode 实例和占位符 VNode 实例？
+      // 以 examples/vue-cli-vue2.6-project 工程为例，对于如下代码：
+      // (1) 例子
+      // new Vue({
+      //   el: '#app',
+      //   render: h => h(App),
+      // })
+      // 解释：h(App) 创建出来的 VNode 实例是占位符 VNode 实例，只作为一个占位符使用，
+      // 实际渲染到页面上的是 App 这个文件 sfc 转成 render 函数创建的 VNode 实例，渲染的位置即是 App 组件所处的位置
+      // (2) 例子
+      // <div id="app">
+      //   <img alt="Vue logo" src="./assets/logo.png" />
+      //   <HelloWorld msg="Welcome to Your Vue.js App" />
+      // </div>
+      // 解释：对于 HelloWorld 这个组件，由于 "HelloWorld" 创建的 VNode 实例即是占位符 VNode 实例，
+      // 实际渲染到页面上的是 HelloWorld 这个文件 sfc 转成 render 函数创建的 VNode 实例，
+      // 该 VNode 实例渲染到页面的DOM对应于 HelloWorld 这个文件中<template>标签中的DOM，渲染的位置即是 HelloWorld 组件所处的位置
+
       vm._vnode = vnode;
       // Vue.prototype.__patch__ is injected in entry points
       // based on the rendering backend used.
@@ -6387,7 +6406,7 @@
           }
         }
 
-        // 调用平台 DOM 的操作去创建一个占位符元素
+        // 调用平台 DOM 的操作去创建一个占位符DOM元素
         vnode.elm = vnode.ns
           ? nodeOps.createElementNS(vnode.ns, tag)
           : nodeOps.createElement(tag, vnode);
@@ -6423,6 +6442,8 @@
 
     /*创建一个组件*/
     function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+      // 如果传入的是 组件的 VNode 实例，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
+      // 则这里的 vnode.data 是有内容的，会进入  i(vnode, false /* hydrating */) 逻辑
       var i = vnode.data;
       if (isDef(i)) {
         var isReactivated = isDef(vnode.componentInstance) && i.keepAlive;
@@ -6444,6 +6465,7 @@
           initComponent(vnode, insertedVnodeQueue);
           // 如果是组件实例的 patch 操作而不是普通DOM节点，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
           // 则该组件实例对应的DOM被插入到页面中是在下边的 insert 函数逻辑中
+          // 通过调试会发现，整个过程，插入顺序是“先子后父”的，即 HelloWorld组件DOM -> App组件DOM -> body 元素上（“->”表插入）
           insert(parentElm, vnode.elm, refElm);
           if (isTrue(isReactivated)) {
             reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm);
@@ -6460,6 +6482,9 @@
         insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert);
         vnode.data.pendingInsert = null;
       }
+      // 占位符 VNode 实例 vnode.elm 会赋值为 vnode.componentInstance.$el
+      // 即对应组件 sfc 文件中<template>对应的根DOM
+      // 比如 examples/vue-cli-vue2.6-project 例子，HelloWorld 组件的占位符 VNode 实例上的 elm 属性会被赋值为 HelloWorld 这 sfc 中的<template>对应的根DOM
       vnode.elm = vnode.componentInstance.$el;
       if (isPatchable(vnode)) {
         /*调用create钩子*/

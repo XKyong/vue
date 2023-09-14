@@ -43,7 +43,7 @@ export function initLifecycle (vm: Component) {
 
     // 将 vm 添加到父组件的 $children 列表中
     // parent 是 vm 的父组件实例
-    // vm 是当前组件实例
+    // vm 是当前组件实例，如果传入的是类似 App 这样的组件实例，则是 VueComponent 类的实例
     parent.$children.push(vm)
   }
 
@@ -70,9 +70,27 @@ export function lifecycleMixin (Vue: Class<Component>) {
     const prevEl = vm.$el
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)
-    // vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例，是一个渲染 VNode 实例（即会最终渲染到页面成为真实DOM的VNode实例）
+    // 1.vm._vnode 表示绑定在当前 vm 实例上的 VNode 实例，是一个渲染 VNode 实例（即会最终渲染到页面成为真实DOM的VNode实例）
     // vm._vnode 是 vm.$vnode 的子 VNode 实例
-    // 作为对照，vm.$vnode 是当前 vm 实例的父 VNode 实例，是一个占位符 VNode 实例（即）
+    // 2.作为对照，vm.$vnode 是当前 vm 实例的父 VNode 实例，是一个占位符 VNode 实例
+    // 3.如何理解渲染 VNode 实例和占位符 VNode 实例？
+    // 以 examples/vue-cli-vue2.6-project 工程为例，对于如下代码：
+    // (1) 例子
+    // new Vue({
+    //   el: '#app',
+    //   render: h => h(App),
+    // })
+    // 解释：h(App) 创建出来的 VNode 实例是占位符 VNode 实例，只作为一个占位符使用，
+    // 实际渲染到页面上的是 App 这个文件 sfc 转成 render 函数创建的 VNode 实例，渲染的位置即是 App 组件所处的位置
+    // (2) 例子
+    // <div id="app">
+    //   <img alt="Vue logo" src="./assets/logo.png" />
+    //   <HelloWorld msg="Welcome to Your Vue.js App" />
+    // </div>
+    // 解释：对于 HelloWorld 这个组件，由于 "HelloWorld" 创建的 VNode 实例即是占位符 VNode 实例，
+    // 实际渲染到页面上的是 HelloWorld 这个文件 sfc 转成 render 函数创建的 VNode 实例，
+    // 该 VNode 实例渲染到页面的DOM对应于 HelloWorld 这个文件中<template>标签中的DOM，渲染的位置即是 HelloWorld 组件所处的位置
+
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.

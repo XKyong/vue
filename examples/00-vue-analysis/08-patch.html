@@ -10,6 +10,11 @@
   <script>
     // 示例参看 examples/vue-cli-vue2.6-project 工程！
     // 相关注释也在工程中注明了！
+    // 1.普通DOM节点的patch流程见“06-vm-update”例子
+    // 2.组件patch流程总结如下：
+    // (1) patch的整体流程：createComponent(位置在 src\core\vdom\patch.js 文件中的createComponent函数)->子组件初始化->子组件render->子组件patch
+    // (2) activeInstance为当前激活的vm实例；vm.$vnode为组件的占位vnode；vm.vnode为组件的渲染vnode
+    // (3) 嵌套组件的插入顺序是“先子后父”
   </script>
 </body>
 </html>

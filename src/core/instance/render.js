@@ -137,6 +137,7 @@ export function renderMixin (Vue: Class<Component>) {
       vnode = createEmptyVNode()
     }
     // set parent
+    // 设置渲染 VNode 实例的 vnode.parent 属性为占位符 VNode 实例 
     vnode.parent = _parentVnode
     return vnode
   }

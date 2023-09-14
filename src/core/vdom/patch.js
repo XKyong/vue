@@ -197,7 +197,7 @@ export function createPatchFunction (backend) {
         }
       }
 
-      // 调用平台 DOM 的操作去创建一个占位符元素
+      // 调用平台 DOM 的操作去创建一个占位符DOM元素
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
@@ -251,6 +251,8 @@ export function createPatchFunction (backend) {
 
   /*创建一个组件*/
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
+    // 如果传入的是 组件的 VNode 实例，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
+    // 则这里的 vnode.data 是有内容的，会进入  i(vnode, false /* hydrating */) 逻辑
     let i = vnode.data
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
@@ -272,6 +274,7 @@ export function createPatchFunction (backend) {
         initComponent(vnode, insertedVnodeQueue)
         // 如果是组件实例的 patch 操作而不是普通DOM节点，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件，
         // 则该组件实例对应的DOM被插入到页面中是在下边的 insert 函数逻辑中
+        // 通过调试会发现，整个过程，插入顺序是“先子后父”的，即 HelloWorld组件DOM -> App组件DOM -> body 元素上（“->”表插入）
         insert(parentElm, vnode.elm, refElm)
         if (isTrue(isReactivated)) {
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
@@ -288,6 +291,9 @@ export function createPatchFunction (backend) {
       insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
       vnode.data.pendingInsert = null
     }
+    // 占位符 VNode 实例 vnode.elm 会赋值为 vnode.componentInstance.$el
+    // 即对应组件 sfc 文件中<template>对应的根DOM
+    // 比如 examples/vue-cli-vue2.6-project 例子，HelloWorld 组件的占位符 VNode 实例上的 elm 属性会被赋值为 HelloWorld 这 sfc 中的<template>对应的根DOM
     vnode.elm = vnode.componentInstance.$el
     if (isPatchable(vnode)) {
       /*调用create钩子*/
