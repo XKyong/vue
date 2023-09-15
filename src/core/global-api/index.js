@@ -73,7 +73,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // 记录 Vue 构造函数
   Vue.options._base = Vue
 
-  // 设置 builtInComponents，即 keep-alive 组件
+  // 设置 builtInComponents，即 KeepAlive/Transition/TransitionGroup 组件
   // 这里的 extend 函数的具体位置为：shared/util 
   // extend作用就是将参数2的对象 浅拷贝 给参数1的对象
   extend(Vue.options.components, builtInComponents)

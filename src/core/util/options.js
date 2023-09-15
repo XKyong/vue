@@ -26,6 +26,10 @@ import {
  * how to merge a parent option value and a child option
  * value into the final value.
  */
+/*
+  这个strats的作用就是，当要合并两个option（比如父组件的option与子组件的option）合并的时候，
+  这里写了如何合并两个数据（或者function等）得到最终结果的方法
+ */
 const strats = config.optionMergeStrategies
 
 /**
@@ -118,6 +122,7 @@ export function mergeDataOrFn (
   }
 }
 
+// 例子：针对传入 new Vue 中 data 属性的配置合并！
 strats.data = function (
   parentVal: any,
   childVal: any,
@@ -159,9 +164,11 @@ function mergeHook (
     : res
 }
 
+// hook 去重
 function dedupeHooks (hooks) {
   const res = []
   for (let i = 0; i < hooks.length; i++) {
+    // 命中 if 分支的情况：hooks[i] 引用自同一个内存地址，即被赋值给同一个变量
     if (res.indexOf(hooks[i]) === -1) {
       res.push(hooks[i])
     }
@@ -169,6 +176,19 @@ function dedupeHooks (hooks) {
   return res
 }
 
+// 针对生命周期属性合并策略
+// 'beforeCreate'
+// 'created'
+// 'beforeMount'
+// 'mounted'
+// 'beforeUpdate'
+// 'updated'
+// 'beforeDestroy'
+// 'destroyed'
+// 'activated'
+// 'deactivated'
+// 'errorCaptured'
+// 'serverPrefetch'
 LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook
 })
@@ -186,15 +206,18 @@ function mergeAssets (
   vm?: Component,
   key: string
 ): Object {
+  // 把 parentVal 对象作为 res.__proto__ 的值 
   const res = Object.create(parentVal || null)
   if (childVal) {
     process.env.NODE_ENV !== 'production' && assertObjectType(key, childVal, vm)
+    // 把 childVal 对象上的属性加到 res 对象中来
     return extend(res, childVal)
   } else {
     return res
   }
 }
 
+// 针对 Vue.options.components/directives/filters 属性的合并
 ASSET_TYPES.forEach(function (type) {
   strats[type + 's'] = mergeAssets
 })
@@ -239,27 +262,30 @@ strats.watch = function (
  * Other object hashes.
  */
 strats.props =
-strats.methods =
-strats.inject =
-strats.computed = function (
-  parentVal: ?Object,
-  childVal: ?Object,
-  vm?: Component,
-  key: string
-): ?Object {
-  if (childVal && process.env.NODE_ENV !== 'production') {
-    assertObjectType(key, childVal, vm)
+  strats.methods =
+  strats.inject =
+  strats.computed = function (
+    parentVal: ?Object,
+    childVal: ?Object,
+    vm?: Component,
+    key: string
+  ): ?Object {
+    if (childVal && process.env.NODE_ENV !== 'production') {
+      assertObjectType(key, childVal, vm)
+    }
+    if (!parentVal) return childVal
+    const ret = Object.create(null)
+    extend(ret, parentVal)
+    if (childVal) extend(ret, childVal)
+    return ret
   }
-  if (!parentVal) return childVal
-  const ret = Object.create(null)
-  extend(ret, parentVal)
-  if (childVal) extend(ret, childVal)
-  return ret
-}
 strats.provide = mergeDataOrFn
 
 /**
  * Default strategy.
+ * 例子：针对 Vue.options._base 属性的合并
+ *      new Vue 时传入的 el/render/template 属性
+ *      子组件 VueComponent 实例定义时候传入的 _Ctor 属性
  */
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined
@@ -295,6 +321,7 @@ export function validateComponentName (name: string) {
  * Ensure all props option syntax are normalized into the
  * Object-based format.
  */
+/*确保所有props option序列化成正确的格式*/
 function normalizeProps (options: Object, vm: ?Component) {
   const props = options.props
   if (!props) return
@@ -305,6 +332,7 @@ function normalizeProps (options: Object, vm: ?Component) {
     while (i--) {
       val = props[i]
       if (typeof val === 'string') {
+        /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
         name = camelize(val)
         res[name] = { type: null }
       } else if (process.env.NODE_ENV !== 'production') {
@@ -314,6 +342,7 @@ function normalizeProps (options: Object, vm: ?Component) {
   } else if (isPlainObject(props)) {
     for (const key in props) {
       val = props[key]
+      /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
       name = camelize(key)
       res[name] = isPlainObject(val)
         ? val
@@ -359,6 +388,7 @@ function normalizeInject (options: Object, vm: ?Component) {
 /**
  * Normalize raw function directives into object format.
  */
+/*将函数指令序列化后加入对象*/
 function normalizeDirectives (options: Object) {
   const dirs = options.directives
   if (dirs) {
@@ -385,6 +415,7 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
  */
+/*合并两个option对象到一个新的对象中*/
 export function mergeOptions (
   parent: Object,
   child: Object,
@@ -398,18 +429,26 @@ export function mergeOptions (
     child = child.options
   }
 
+  /*确保所有props option序列化成正确的格式*/
   normalizeProps(child, vm)
   normalizeInject(child, vm)
+  /*将函数指令序列化后加入对象*/
   normalizeDirectives(child)
 
   // Apply extends and mixins on the child options,
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  /*
+    https://cn.vuejs.org/v2/api/#extends
+    允许声明扩展另一个组件(可以是一个简单的选项对象或构造函数),而无需使用 
+    将child的extends也加入parent扩展
+  */
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
     }
+    /*child的mixins加入parent中*/
     if (child.mixins) {
       for (let i = 0, l = child.mixins.length; i < l; i++) {
         parent = mergeOptions(parent, child.mixins[i], vm)
@@ -419,6 +458,7 @@ export function mergeOptions (
 
   const options = {}
   let key
+  /*合并parent与child*/
   for (key in parent) {
     mergeField(key)
   }
@@ -428,7 +468,9 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
+    /*strats里面存了options中每一个属性（el、props、watch等等）的合并方法，先取出*/
     const strat = strats[key] || defaultStrat
+    /*根据合并方法来合并两个option*/
     options[key] = strat(parent[key], child[key], vm, key)
   }
   return options
@@ -449,11 +491,14 @@ export function resolveAsset (
   if (typeof id !== 'string') {
     return
   }
+  /*分别用id本身、驼峰以及大写开头驼峰寻找是否存在，存在则返回，不存在则打印*/
   const assets = options[type]
   // check local registration variations first
   if (hasOwn(assets, id)) return assets[id]
+  /*转化为驼峰命名*/
   const camelizedId = camelize(id)
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
+  /*驼峰首字母大写*/
   const PascalCaseId = capitalize(camelizedId)
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain

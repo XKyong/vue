@@ -40,12 +40,14 @@ export function initMixin (Vue: Class<Component>) {
     // merge options
     // 将用户传入的options与Vue本身实例化过程中创建的options进行合并
     if (options && options._isComponent) {
-      // 传入的是组件实例而非 DOM 元素，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件就会来到这
+      // 子组件初始化过程中的 配置合并
+      // 传入的是组件实例而非 DOM 元素，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件的配置合并就会来到这
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // new Vue 过程的配置合并会来到这！
       // 往 vm 上挂载 $options 对象，后续的代码逻辑针对的是 $options 对象了！
       // $options 上有的东西如：
       // {"components":{},"directives":{},"filters":{},"el":"#app","created":[null]}'
@@ -105,7 +107,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   // doing this because it's faster than dynamic enumeration.
   // 存储占位符 VNode 实例
   const parentVnode = options._parentVnode
-  // 存储当前 vm 实例
+  // 存储当前 vm 实例的父 vm 实例
   opts.parent = options.parent
   opts._parentVnode = parentVnode
 

@@ -64,6 +64,7 @@ export function initExtend (Vue: GlobalAPI) {
 
     // 合并options 
     /*将父组件的option与子组件的合并到一起(Vue有一个cid为0的基类，即Vue本身，会将一些默认初始化的option合入)*/
+    // 子组件定义过程中的 配置合并！
     Sub.options = mergeOptions(
       Super.options,
       extendOptions

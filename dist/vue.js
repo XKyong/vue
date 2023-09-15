@@ -1239,6 +1239,10 @@
    * how to merge a parent option value and a child option
    * value into the final value.
    */
+  /*
+    这个strats的作用就是，当要合并两个option（比如父组件的option与子组件的option）合并的时候，
+    这里写了如何合并两个数据（或者function等）得到最终结果的方法
+   */
   var strats = config.optionMergeStrategies;
 
   /**
@@ -1331,6 +1335,7 @@
     }
   }
 
+  // 例子：针对传入 new Vue 中 data 属性的配置合并！
   strats.data = function (
     parentVal,
     childVal,
@@ -1372,9 +1377,11 @@
       : res
   }
 
+  // hook 去重
   function dedupeHooks (hooks) {
     var res = [];
     for (var i = 0; i < hooks.length; i++) {
+      // 命中 if 分支的情况：hooks[i] 引用自同一个内存地址，即被赋值给同一个变量
       if (res.indexOf(hooks[i]) === -1) {
         res.push(hooks[i]);
       }
@@ -1382,6 +1389,19 @@
     return res
   }
 
+  // 针对生命周期属性合并策略
+  // 'beforeCreate'
+  // 'created'
+  // 'beforeMount'
+  // 'mounted'
+  // 'beforeUpdate'
+  // 'updated'
+  // 'beforeDestroy'
+  // 'destroyed'
+  // 'activated'
+  // 'deactivated'
+  // 'errorCaptured'
+  // 'serverPrefetch'
   LIFECYCLE_HOOKS.forEach(function (hook) {
     strats[hook] = mergeHook;
   });
@@ -1399,15 +1419,18 @@
     vm,
     key
   ) {
+    // 把 parentVal 对象作为 res.__proto__ 的值 
     var res = Object.create(parentVal || null);
     if (childVal) {
        assertObjectType(key, childVal, vm);
+      // 把 childVal 对象上的属性加到 res 对象中来
       return extend(res, childVal)
     } else {
       return res
     }
   }
 
+  // 针对 Vue.options.components/directives/filters 属性的合并
   ASSET_TYPES.forEach(function (type) {
     strats[type + 's'] = mergeAssets;
   });
@@ -1452,27 +1475,30 @@
    * Other object hashes.
    */
   strats.props =
-  strats.methods =
-  strats.inject =
-  strats.computed = function (
-    parentVal,
-    childVal,
-    vm,
-    key
-  ) {
-    if (childVal && "development" !== 'production') {
-      assertObjectType(key, childVal, vm);
-    }
-    if (!parentVal) { return childVal }
-    var ret = Object.create(null);
-    extend(ret, parentVal);
-    if (childVal) { extend(ret, childVal); }
-    return ret
-  };
+    strats.methods =
+    strats.inject =
+    strats.computed = function (
+      parentVal,
+      childVal,
+      vm,
+      key
+    ) {
+      if (childVal && "development" !== 'production') {
+        assertObjectType(key, childVal, vm);
+      }
+      if (!parentVal) { return childVal }
+      var ret = Object.create(null);
+      extend(ret, parentVal);
+      if (childVal) { extend(ret, childVal); }
+      return ret
+    };
   strats.provide = mergeDataOrFn;
 
   /**
    * Default strategy.
+   * 例子：针对 Vue.options._base 属性的合并
+   *      new Vue 时传入的 el/render/template 属性
+   *      子组件 VueComponent 实例定义时候传入的 _Ctor 属性
    */
   var defaultStrat = function (parentVal, childVal) {
     return childVal === undefined
@@ -1508,6 +1534,7 @@
    * Ensure all props option syntax are normalized into the
    * Object-based format.
    */
+  /*确保所有props option序列化成正确的格式*/
   function normalizeProps (options, vm) {
     var props = options.props;
     if (!props) { return }
@@ -1518,6 +1545,7 @@
       while (i--) {
         val = props[i];
         if (typeof val === 'string') {
+          /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
           name = camelize(val);
           res[name] = { type: null };
         } else {
@@ -1527,6 +1555,7 @@
     } else if (isPlainObject(props)) {
       for (var key in props) {
         val = props[key];
+        /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
         name = camelize(key);
         res[name] = isPlainObject(val)
           ? val
@@ -1572,6 +1601,7 @@
   /**
    * Normalize raw function directives into object format.
    */
+  /*将函数指令序列化后加入对象*/
   function normalizeDirectives (options) {
     var dirs = options.directives;
     if (dirs) {
@@ -1598,6 +1628,7 @@
    * Merge two option objects into a new one.
    * Core utility used in both instantiation and inheritance.
    */
+  /*合并两个option对象到一个新的对象中*/
   function mergeOptions (
     parent,
     child,
@@ -1611,18 +1642,26 @@
       child = child.options;
     }
 
+    /*确保所有props option序列化成正确的格式*/
     normalizeProps(child, vm);
     normalizeInject(child, vm);
+    /*将函数指令序列化后加入对象*/
     normalizeDirectives(child);
 
     // Apply extends and mixins on the child options,
     // but only if it is a raw options object that isn't
     // the result of another mergeOptions call.
     // Only merged options has the _base property.
+    /*
+      https://cn.vuejs.org/v2/api/#extends
+      允许声明扩展另一个组件(可以是一个简单的选项对象或构造函数),而无需使用 
+      将child的extends也加入parent扩展
+    */
     if (!child._base) {
       if (child.extends) {
         parent = mergeOptions(parent, child.extends, vm);
       }
+      /*child的mixins加入parent中*/
       if (child.mixins) {
         for (var i = 0, l = child.mixins.length; i < l; i++) {
           parent = mergeOptions(parent, child.mixins[i], vm);
@@ -1632,6 +1671,7 @@
 
     var options = {};
     var key;
+    /*合并parent与child*/
     for (key in parent) {
       mergeField(key);
     }
@@ -1641,7 +1681,9 @@
       }
     }
     function mergeField (key) {
+      /*strats里面存了options中每一个属性（el、props、watch等等）的合并方法，先取出*/
       var strat = strats[key] || defaultStrat;
+      /*根据合并方法来合并两个option*/
       options[key] = strat(parent[key], child[key], vm, key);
     }
     return options
@@ -1662,11 +1704,14 @@
     if (typeof id !== 'string') {
       return
     }
+    /*分别用id本身、驼峰以及大写开头驼峰寻找是否存在，存在则返回，不存在则打印*/
     var assets = options[type];
     // check local registration variations first
     if (hasOwn(assets, id)) { return assets[id] }
+    /*转化为驼峰命名*/
     var camelizedId = camelize(id);
     if (hasOwn(assets, camelizedId)) { return assets[camelizedId] }
+    /*驼峰首字母大写*/
     var PascalCaseId = capitalize(camelizedId);
     if (hasOwn(assets, PascalCaseId)) { return assets[PascalCaseId] }
     // fallback to prototype chain
@@ -5277,12 +5322,14 @@
       // merge options
       // 将用户传入的options与Vue本身实例化过程中创建的options进行合并
       if (options && options._isComponent) {
-        // 传入的是组件实例而非 DOM 元素，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件就会来到这
+        // 子组件初始化过程中的 配置合并
+        // 传入的是组件实例而非 DOM 元素，比如 examples/vue-cli-vue2.6-project 例子传入的 App 组件的配置合并就会来到这
         // optimize internal component instantiation
         // since dynamic options merging is pretty slow, and none of the
         // internal component options needs special treatment.
         initInternalComponent(vm, options);
       } else {
+        // new Vue 过程的配置合并会来到这！
         // 往 vm 上挂载 $options 对象，后续的代码逻辑针对的是 $options 对象了！
         // $options 上有的东西如：
         // {"components":{},"directives":{},"filters":{},"el":"#app","created":[null]}'
@@ -5340,7 +5387,7 @@
     // doing this because it's faster than dynamic enumeration.
     // 存储占位符 VNode 实例
     var parentVnode = options._parentVnode;
-    // 存储当前 vm 实例
+    // 存储当前 vm 实例的父 vm 实例
     opts.parent = options.parent;
     opts._parentVnode = parentVnode;
 
@@ -5459,7 +5506,9 @@
 
   function initMixin$1 (Vue) {
     Vue.mixin = function (mixin) {
-      // 将 mixin 混入到 this.options 中，即 Vue.options 中
+      // 1.业务代码中使用 “import Vue from 'vue'”的时候，Vue.options 上即会初始化一些内容了
+      // 具体初始化哪些内容，详细见：src\core\global-api\index.js
+      // 2.将 mixin 混入到 this.options 中，即 Vue.options 中
       // mergeOptions 实际位置在 core/util/options.js 里边
       this.options = mergeOptions(this.options, mixin);
       return this
@@ -5528,6 +5577,7 @@
 
       // 合并options 
       /*将父组件的option与子组件的合并到一起(Vue有一个cid为0的基类，即Vue本身，会将一些默认初始化的option合入)*/
+      // 子组件定义过程中的 配置合并！
       Sub.options = mergeOptions(
         Super.options,
         extendOptions
@@ -5837,7 +5887,7 @@
     // 记录 Vue 构造函数
     Vue.options._base = Vue;
 
-    // 设置 builtInComponents，即 keep-alive 组件
+    // 设置 builtInComponents，即 KeepAlive/Transition/TransitionGroup 组件
     // 这里的 extend 函数的具体位置为：shared/util 
     // extend作用就是将参数2的对象 浅拷贝 给参数1的对象
     extend(Vue.options.components, builtInComponents);

@@ -72,6 +72,11 @@
 					"line": 20,
 					"column": 48,
 					"label": "Vue静态成员的初始化"
+				},
+				{
+					"line": 64,
+					"column": 35,
+					"label": "Vue.options开始初始化位置"
 				}
 			]
 		},
@@ -94,17 +99,22 @@
 					"label": "Vue.prototype._init方法"
 				},
 				{
-					"line": 75,
+					"line": 42,
+					"column": 24,
+					"label": "子组件初始化过程中的 配置合并"
+				},
+				{
+					"line": 77,
 					"column": 32,
 					"label": "beforeCreate 生命周期钩子触发位置"
 				},
 				{
-					"line": 84,
+					"line": 86,
 					"column": 27,
 					"label": "created 生命周期钩子触发位置"
 				},
 				{
-					"line": 97,
+					"line": 99,
 					"column": 31,
 					"label": "调用 vm.$mount 将用户传入的 el 属性替换渲染为真实 DOM"
 				}
@@ -327,6 +337,11 @@
 					"line": 58,
 					"column": 50,
 					"label": "Vue中关于js组合继承的用法"
+				},
+				{
+					"line": 66,
+					"column": 22,
+					"label": "子组件定义过程中的 配置合并"
 				}
 			]
 		},
@@ -334,9 +349,19 @@
 			"path": "src/core/util/options.js",
 			"bookmarks": [
 				{
-					"line": 286,
+					"line": 132,
+					"column": 52,
+					"label": "子组件实例的 data 属性必须是函数，否则会报错出处"
+				},
+				{
+					"line": 312,
 					"column": 9,
 					"label": "Do not use built-in or reserved HTML elements as component 报错出处"
+				},
+				{
+					"line": 418,
+					"column": 30,
+					"label": "mergeOptions函数出处"
 				}
 			]
 		},
