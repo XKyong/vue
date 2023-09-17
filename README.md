@@ -76,7 +76,7 @@ $ npm install
 
 针对简单的示例，那么直接在 `examples/00-vue-analysis` 目录中，通过一个个 `.html` 文件打断点进行调试。
 
-对于涉及 sfc 的调试，则参看 `examples/vue-cli-vue2.6-project` 工程进行调试，对应于不同的调试需求，这些选择用打 tag 的方式记录不同的示例。
+对于涉及 sfc 的调试，则参看 `examples/vue-cli-vue2.6-project` 工程进行调试，对应于不同的调试需求，选择用打 tag 的方式记录不同的示例。
 
 
 
