@@ -482,9 +482,9 @@ export function mergeOptions (
  * to assets defined in its ancestor chain.
  */
 export function resolveAsset (
-  options: Object,
-  type: string,
-  id: string,
+  options: Object, // vm.$options
+  type: string, // 比如 components/filters/directives
+  id: string, // 比如 HelloWorld
   warnMissing?: boolean
 ): any {
   /* istanbul ignore if */
@@ -495,13 +495,14 @@ export function resolveAsset (
   const assets = options[type]
   // check local registration variations first
   if (hasOwn(assets, id)) return assets[id]
-  /*转化为驼峰命名*/
+  /*转化为驼峰命名，比如 hello-world => helloWorld*/
   const camelizedId = camelize(id)
   if (hasOwn(assets, camelizedId)) return assets[camelizedId]
-  /*驼峰首字母大写*/
+  /*驼峰首字母大写，比如 hello-world => Hello-world*/
   const PascalCaseId = capitalize(camelizedId)
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain
+  // 用id本身、驼峰以及大写开头驼峰这3种方式都找不到 definition 构造函数（即 VueComponent）的话，则去原型上找
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]
   if (process.env.NODE_ENV !== 'production' && warnMissing && !res) {
     warn(

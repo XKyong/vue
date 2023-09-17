@@ -10,7 +10,16 @@
   <script>
     // 示例参看 examples/vue-cli-vue2.6-project 工程！
     // 相关注释也在工程中注明了！
-    
+    // 1.涉及全局注册和局部注册组件的核心函数有：
+    // (1)initAssetRegisters: 在 src\core\global-api\assets.js 文件中，全局注册组件会来到这个方法里边
+    // (2)Vue.extend: 在 src\core\global-api\extend.js 文件中，全局注册组件会来到这个方法里边，
+    // 核心代码是 Sub.options = mergeOptions(Super.options, extendOptions)
+    // (3)resolveAsset: 在 src\core\util\options.js 文件中，获取 components 属性上对应组件的构造函数时会用到该 resolveAsset 函数,
+    // 需要获取 components 属性的时机在 src\core\vdom\create-element.js 文件中的 _createElement 函数中
+    // 2.全局注册的组件可以在任意地方使用（因为注册到 Vue.options.components 属性上），而局部注册的组件只能在当前注册的组件中使用（因为注册到 Sub.options.components 属性而已），
+    // 然后在 _init 方法中，做合并 $options 的工作后，全局注册的组件可以在任意 vm.$options.components 属性上获取到，
+    // 而局部注册的组件可以只能在当前 vm.$options.components 属性上获取
+    // 3.通常组件库中的基础组件建议全局注册，而业务组件建议局部注册！
   </script>
 </body>
 </html>

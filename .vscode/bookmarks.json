@@ -389,6 +389,16 @@
 					"label": "调用 createComponent 创建组件 VNode 实例位置"
 				}
 			]
+		},
+		{
+			"path": "src/core/instance/proxy.js",
+			"bookmarks": [
+				{
+					"line": 15,
+					"column": 43,
+					"label": "Property or method is not defined 错误出处"
+				}
+			]
 		}
 	]
 }

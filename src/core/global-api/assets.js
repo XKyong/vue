@@ -9,6 +9,7 @@ export function initAssetRegisters (Vue: GlobalAPI) {
    */
   // 遍历 ASSET_TYPES 数组，为 Vue 定义相应方法
   // ASSET_TYPES 包含了 directive/component/filter
+  // 调用 Vue.component/filter/directive 方法注册全局组件/过滤器/指令的代码逻辑会走到这
   ASSET_TYPES.forEach(type => {
     Vue[type] = function (
       id: string,
@@ -26,7 +27,7 @@ export function initAssetRegisters (Vue: GlobalAPI) {
         // 示例：Vue.component('comp', {template: ''})
         if (type === 'component' && isPlainObject(definition)) {
           definition.name = definition.name || id
-          // 把组件配置转换为组件的构造函数
+          // 把组件配置转换为组件的构造函数 VueComponent 
           // Vue.options._base = Vue
           definition = this.options._base.extend(definition)
         }

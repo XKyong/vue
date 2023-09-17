@@ -1695,9 +1695,9 @@
    * to assets defined in its ancestor chain.
    */
   function resolveAsset (
-    options,
-    type,
-    id,
+    options, // vm.$options
+    type, // 比如 components/filters/directives
+    id, // 比如 HelloWorld
     warnMissing
   ) {
     /* istanbul ignore if */
@@ -1708,13 +1708,14 @@
     var assets = options[type];
     // check local registration variations first
     if (hasOwn(assets, id)) { return assets[id] }
-    /*转化为驼峰命名*/
+    /*转化为驼峰命名，比如 hello-world => helloWorld*/
     var camelizedId = camelize(id);
     if (hasOwn(assets, camelizedId)) { return assets[camelizedId] }
-    /*驼峰首字母大写*/
+    /*驼峰首字母大写，比如 hello-world => Hello-world*/
     var PascalCaseId = capitalize(camelizedId);
     if (hasOwn(assets, PascalCaseId)) { return assets[PascalCaseId] }
     // fallback to prototype chain
+    // 用id本身、驼峰以及大写开头驼峰这3种方式都找不到 definition 构造函数（即 VueComponent）的话，则去原型上找
     var res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
     if ( warnMissing && !res) {
       warn(
@@ -5594,6 +5595,8 @@
       // 合并options 
       /*将父组件的option与子组件的合并到一起(Vue有一个cid为0的基类，即Vue本身，会将一些默认初始化的option合入)*/
       // 子组件定义过程中的 配置合并！
+      // 比如局部注册的组件，写在 components 属性上，然后在组件初始化init过程中，调用 src\core\vdom\create-element.js 文件的 resolveAsset 函数处理，
+      // 就可以拿到子组件的构造函数，进而拿到局部注册到该构造函数对应 vm 组件的子组件！
       Sub.options = mergeOptions(
         Super.options,
         extendOptions
@@ -5627,7 +5630,7 @@
         Sub[type] = Super[type];
       });
       // enable recursive self-lookup
-      // 把组件构造函数保存到 Ctor.options.components.comp = Ctor
+      // 把组件构造函数保存到自身 Ctor.options.components.comp = Ctor
       /*把组件自身也加入components中，为递归自身提供可能（递归组件也会查找components是否存在当前组件，也就是自身）*/
       if (name) {
         Sub.options.components[name] = Sub;
@@ -5677,6 +5680,7 @@
      */
     // 遍历 ASSET_TYPES 数组，为 Vue 定义相应方法
     // ASSET_TYPES 包含了 directive/component/filter
+    // 调用 Vue.component/filter/directive 方法注册全局组件/过滤器/指令的代码逻辑会走到这
     ASSET_TYPES.forEach(function (type) {
       Vue[type] = function (
         id,
@@ -5694,7 +5698,7 @@
           // 示例：Vue.component('comp', {template: ''})
           if (type === 'component' && isPlainObject(definition)) {
             definition.name = definition.name || id;
-            // 把组件配置转换为组件的构造函数
+            // 把组件配置转换为组件的构造函数 VueComponent 
             // Vue.options._base = Vue
             definition = this.options._base.extend(definition);
           }

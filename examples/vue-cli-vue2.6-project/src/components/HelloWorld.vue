@@ -1,6 +1,5 @@
 <template>
   <div class="hello">
-    <MyTitle />
     <h1>{{ msg }}</h1>
     <h1>{{ desc }}</h1>
     <p>
@@ -89,13 +88,8 @@
 </template>
 
 <script>
-import MyTitle from './MyTitle.vue'
-
 export default {
   name: "HelloWorld",
-  components: {
-    MyTitle
-  },
   props: {
     msg: String,
   },
@@ -103,36 +97,6 @@ export default {
     return {
       desc: 'this is HelloWorld component'
     }
-  },
-  beforeCreate () {
-    console.log('HelloWorld beforeCreate')
-  },
-  created () {
-    console.log('HelloWorld created')
-
-    // 用以验证 beforeUpdate 和 updated 的执行顺序
-    // beforeUpdate 和 updated 的钩子函数执行时机都应该是在“数据更新”的时候
-    setTimeout(() => {
-      this.desc = '这是HelloWorld component'
-    }, 2000)
-  },
-  beforeUpdate () {
-    console.log('HelloWorld beforeUpdate')
-  },
-  updated () {
-    console.log('HelloWorld updated')
-  },
-  beforeMount () {
-    console.log('HelloWorld beforeMount')
-  },
-  mounted () {
-    console.log('HelloWorld mounted')
-  },
-  beforeDestroy () {
-    console.log('HelloWorld beforeDestroy')
-  },
-  destroyed () {
-    console.log('HelloWorld destroyed')
   }
 };
 </script>

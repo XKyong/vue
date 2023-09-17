@@ -67,6 +67,8 @@ export function initExtend (Vue: GlobalAPI) {
     // 合并options 
     /*将父组件的option与子组件的合并到一起(Vue有一个cid为0的基类，即Vue本身，会将一些默认初始化的option合入)*/
     // 子组件定义过程中的 配置合并！
+    // 比如局部注册的组件，写在 components 属性上，然后在组件初始化init过程中，调用 src\core\vdom\create-element.js 文件的 resolveAsset 函数处理，
+    // 就可以拿到子组件的构造函数，进而拿到局部注册到该构造函数对应 vm 组件的子组件！
     Sub.options = mergeOptions(
       Super.options,
       extendOptions
@@ -100,7 +102,7 @@ export function initExtend (Vue: GlobalAPI) {
       Sub[type] = Super[type]
     })
     // enable recursive self-lookup
-    // 把组件构造函数保存到 Ctor.options.components.comp = Ctor
+    // 把组件构造函数保存到自身 Ctor.options.components.comp = Ctor
     /*把组件自身也加入components中，为递归自身提供可能（递归组件也会查找components是否存在当前组件，也就是自身）*/
     if (name) {
       Sub.options.components[name] = Sub
