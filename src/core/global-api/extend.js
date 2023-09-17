@@ -27,6 +27,8 @@ export function initExtend (Vue: GlobalAPI) {
    参数是一个包含组件option的对象。  https://cn.vuejs.org/v2/api/#Vue-extend-options
    */
   Vue.extend = function (extendOptions: Object): Function {
+    // 这里传入的 extendOptions 对象可以理解为是 sfc 文件 export default 出来的那个对象，
+    // 不过是该对象上会多些额外的属性
     extendOptions = extendOptions || {}
     // this 即为 Vue构造函数
     /*父类的构造*/

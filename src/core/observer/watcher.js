@@ -50,6 +50,9 @@ export default class Watcher {
     isRenderWatcher?: boolean
   ) {
     this.vm = vm
+    // 如果当前 Watcher 实例是渲染 Watcher（即处理DOM渲染的Watcher），则会将当前 Watcher 实例保存到 vm._watcher 中
+    // 后续 src\core\observer\scheduler.js 文件中 callUpdatedHooks 需要该 vm._watcher 来作为 updated 钩子函数触发的判断条件
+    // vm._watcher 是专门用来监听 vm 上数据变化然后重新渲染的
     if (isRenderWatcher) {
       vm._watcher = this
     }

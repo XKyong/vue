@@ -104,17 +104,17 @@
 					"label": "子组件初始化过程中的 配置合并"
 				},
 				{
-					"line": 77,
+					"line": 80,
 					"column": 32,
 					"label": "beforeCreate 生命周期钩子触发位置"
 				},
 				{
-					"line": 86,
+					"line": 89,
 					"column": 27,
 					"label": "created 生命周期钩子触发位置"
 				},
 				{
-					"line": 99,
+					"line": 102,
 					"column": 31,
 					"label": "调用 vm.$mount 将用户传入的 el 属性替换渲染为真实 DOM"
 				}
@@ -174,62 +174,67 @@
 					"label": "beforeDestroy 生命周期钩子触发位置"
 				},
 				{
-					"line": 166,
+					"line": 168,
 					"column": 29,
 					"label": "destroyed 生命周期钩子触发位置"
 				},
 				{
-					"line": 182,
+					"line": 184,
 					"column": 32,
 					"label": "mountComponent 函数定义出处"
 				},
 				{
-					"line": 193,
+					"line": 195,
 					"column": 77,
 					"label": "在 runtime-only 版本的Vue中使用template属性报错的出处"
 				},
 				{
-					"line": 202,
+					"line": 204,
 					"column": 13,
 					"label": "Failed to mount component 报错出处"
 				},
 				{
-					"line": 209,
+					"line": 211,
 					"column": 29,
 					"label": "beforeMount 生命周期钩子触发位置"
 				},
 				{
-					"line": 236,
+					"line": 238,
 					"column": 41,
 					"label": "调用 vm._update 将 vm._render 返回的 VNode 实例转换成真实 DOM "
 				},
 				{
-					"line": 247,
+					"line": 249,
 					"column": 42,
 					"label": "Watcher实例首次被创建的位置"
 				},
 				{
-					"line": 250,
+					"line": 254,
 					"column": 36,
 					"label": "beforeUpdate 生命周期钩子触发位置"
 				},
 				{
-					"line": 262,
+					"line": 267,
 					"column": 27,
 					"label": "mounted 生命周期钩子触发位置1"
 				},
 				{
-					"line": 372,
+					"line": 377,
 					"column": 29,
 					"label": "activated 生命周期钩子触发位置"
 				},
 				{
-					"line": 388,
+					"line": 393,
 					"column": 31,
 					"label": "deactivated 生命周期钩子触发位置"
 				},
 				{
-					"line": 400,
+					"line": 398,
+					"column": 56,
+					"label": "callHook：执行生命周期的函数定义位置"
+				},
+				{
+					"line": 406,
 					"column": 62,
 					"label": "生命周期钩子内部的 this 指向，在这里被处理"
 				}
@@ -239,7 +244,7 @@
 			"path": "src/core/observer/watcher.js",
 			"bookmarks": [
 				{
-					"line": 105,
+					"line": 108,
 					"column": 20,
 					"label": "watcher被作为 Dep.target 的执行代码"
 				}
@@ -264,17 +269,27 @@
 					"label": "组件实例DOM被插入到页面的处理时机"
 				},
 				{
-					"line": 349,
+					"line": 287,
+					"column": 54,
+					"label": "invokeInsertHook 用以验证父子组件关系 mounted 生命周期钩子“先子后父”顺序"
+				},
+				{
+					"line": 350,
 					"column": 65,
 					"label": "createChildren 遍历子虚拟节点，递归调用 createElm"
 				},
 				{
-					"line": 569,
+					"line": 570,
 					"column": 42,
 					"label": "用户使用v-for时，绑定的VNode实例包含相同key报错的出处"
 				},
 				{
-					"line": 821,
+					"line": 685,
+					"column": 53,
+					"label": ""
+				},
+				{
+					"line": 824,
 					"column": 66,
 					"label": "vm._update中的核心 patch 函数出处"
 				}
@@ -319,12 +334,12 @@
 					"label": "定义在组件VNode实例patch期间触发的钩子函数集合"
 				},
 				{
-					"line": 72,
+					"line": 73,
 					"column": 44,
 					"label": "mounted 生命周期钩子触发位置2"
 				},
 				{
-					"line": 117,
+					"line": 118,
 					"column": 33,
 					"label": "createComponent 函数定义出处"
 				}
@@ -334,12 +349,12 @@
 			"path": "src/core/global-api/extend.js",
 			"bookmarks": [
 				{
-					"line": 58,
+					"line": 60,
 					"column": 50,
 					"label": "Vue中关于js组合继承的用法"
 				},
 				{
-					"line": 66,
+					"line": 68,
 					"column": 22,
 					"label": "子组件定义过程中的 配置合并"
 				}

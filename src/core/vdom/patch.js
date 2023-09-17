@@ -305,6 +305,7 @@ export function createPatchFunction (backend) {
       // skip all element-related modules except for ref (#3455)
       registerRef(vnode)
       // make sure to invoke the insert hook
+      // 放入 insertedVnodeQueue 的是占位符 VNode 实例
       insertedVnodeQueue.push(vnode)
     }
   }
@@ -688,6 +689,8 @@ export function createPatchFunction (backend) {
     if (isTrue(initial) && isDef(vnode.parent)) {
       vnode.parent.data.pendingInsert = queue
     } else {
+      // queue 即传入的是 insertedVnodeQueue，
+      // 而存在 data.hook.insert 属性的，就是组件的 VNode 实例，普通DOM节点是没有这些属性的！
       for (let i = 0; i < queue.length; ++i) {
         queue[i].data.hook.insert(queue[i])
       }
@@ -939,6 +942,7 @@ export function createPatchFunction (backend) {
 
     /*调用insert钩子*/
     // 根据之前递归 createElm 生成的 vnode 插入顺序队列，执行相关的 insert 钩子函数
+    // insertedVnodeQueue 的添加顺序是先子后父，所以对于同步渲染的子组件而言，mounted 钩子函数的执行顺序也是先子后父
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }

@@ -161,6 +161,8 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // call the last hook...
     vm._isDestroyed = true
     // invoke destroy hooks on current rendered tree
+    // 执行 vm.__patch__(vm._vnode, null) 会触发当前 vm 实例子组件的销毁钩子函数，这样一层层的递归调用，
+    // 所以 destroy 钩子函数执行顺序是“先子后父”，和 mounted 过程一样。
     vm.__patch__(vm._vnode, null)
     // fire destroyed hook
     /* 调用destroyed钩子 */
@@ -241,12 +243,14 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
-  // 1.这里对该vm注册一个Watcher实例，Watcher的getter为updateComponent函数，
-  // 用于触发所有渲染所需要用到的数据的getter，进行依赖收集，该Watcher实例会存在所有渲染所需数据的闭包Dep中
+  // 1.这里对该vm注册一个Watcher实例，Watcher的getter为 updateComponent 回调函数，
+  // 用于触发所有渲染所需要用到的数据的 getter，进行依赖收集，该Watcher实例会存在所有渲染所需数据的闭包Dep中
   // 2.Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，
   // 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
   new Watcher(vm, updateComponent, noop, {
     before () {
+      // beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
+      // vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }
@@ -256,10 +260,11 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
-  // vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例
+  // vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例 vm
   if (vm.$vnode == null) {
     // 设置 vm._isMounted 为 true，表示当前 vm 实例已挂载
     vm._isMounted = true
+    // new Vue 执行过程中 mounted 钩子触发位置
     callHook(vm, 'mounted')
   }
   return vm
@@ -398,6 +403,7 @@ export function callHook (vm: Component, hook: string) {
   const info = `${hook} hook`
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {
+      // 函数内部核心就是 handler.call(context)，其中，context 参数即为这里的 vm 实例
       invokeWithErrorHandling(handlers[i], vm, null, vm, info)
     }
   }

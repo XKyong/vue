@@ -40,18 +40,7 @@
     "bench:ssr": "npm run build:ssr && node benchmarks/ssr/renderToString.js && node benchmarks/ssr/renderToStream.js",
     "release": "bash scripts/release.sh",
     "release:weex": "bash scripts/release-weex.sh",
-    "release:note": "node scripts/gen-release-note.js",
-    "commit": "git-cz"
-  },
-  "gitHooks": {
-    "pre-commit": "lint-staged",
-    "commit-msg": "node scripts/verify-commit-msg.js"
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
+    "release:note": "node scripts/gen-release-note.js"
   },
   "repository": {
     "type": "git",
@@ -84,7 +73,6 @@
     "babel-preset-flow-vue": "^1.0.0",
     "buble": "^0.19.3",
     "chalk": "^2.3.0",
-    "chromedriver": "^2.45.0",
     "codecov": "^3.0.0",
     "commitizen": "^2.9.6",
     "conventional-changelog": "^1.1.3",

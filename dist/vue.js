@@ -3290,6 +3290,7 @@
       var componentInstance = vnode.componentInstance;
       if (!componentInstance._isMounted) {
         componentInstance._isMounted = true;
+        // 组件实例化过程中 mounted 钩子触发位置
         callHook(componentInstance, 'mounted');
       }
       if (vnode.data.keepAlive) {
@@ -4284,6 +4285,8 @@
       // call the last hook...
       vm._isDestroyed = true;
       // invoke destroy hooks on current rendered tree
+      // 执行 vm.__patch__(vm._vnode, null) 会触发当前 vm 实例子组件的销毁钩子函数，这样一层层的递归调用，
+      // 所以 destroy 钩子函数执行顺序是“先子后父”，和 mounted 过程一样。
       vm.__patch__(vm._vnode, null);
       // fire destroyed hook
       /* 调用destroyed钩子 */
@@ -4364,12 +4367,14 @@
     // we set this to vm._watcher inside the watcher's constructor
     // since the watcher's initial patch may call $forceUpdate (e.g. inside child
     // component's mounted hook), which relies on vm._watcher being already defined
-    // 1.这里对该vm注册一个Watcher实例，Watcher的getter为updateComponent函数，
-    // 用于触发所有渲染所需要用到的数据的getter，进行依赖收集，该Watcher实例会存在所有渲染所需数据的闭包Dep中
+    // 1.这里对该vm注册一个Watcher实例，Watcher的getter为 updateComponent 回调函数，
+    // 用于触发所有渲染所需要用到的数据的 getter，进行依赖收集，该Watcher实例会存在所有渲染所需数据的闭包Dep中
     // 2.Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，
     // 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
     new Watcher(vm, updateComponent, noop, {
       before: function before () {
+        // beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
+        // vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数
         if (vm._isMounted && !vm._isDestroyed) {
           callHook(vm, 'beforeUpdate');
         }
@@ -4379,10 +4384,11 @@
 
     // manually mounted instance, call mounted on self
     // mounted is called for render-created child components in its inserted hook
-    // vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例
+    // vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例 vm
     if (vm.$vnode == null) {
       // 设置 vm._isMounted 为 true，表示当前 vm 实例已挂载
       vm._isMounted = true;
+      // new Vue 执行过程中 mounted 钩子触发位置
       callHook(vm, 'mounted');
     }
     return vm
@@ -4521,6 +4527,7 @@
     var info = hook + " hook";
     if (handlers) {
       for (var i = 0, j = handlers.length; i < j; i++) {
+        // 函数内部核心就是 handler.call(context)，其中，context 参数即为这里的 vm 实例
         invokeWithErrorHandling(handlers[i], vm, null, vm, info);
       }
     }
@@ -4732,6 +4739,9 @@
     isRenderWatcher
   ) {
     this.vm = vm;
+    // 如果当前 Watcher 实例是渲染 Watcher（即处理DOM渲染的Watcher），则会将当前 Watcher 实例保存到 vm._watcher 中
+    // 后续 src\core\observer\scheduler.js 文件中 callUpdatedHooks 需要该 vm._watcher 来作为 updated 钩子函数触发的判断条件
+    // vm._watcher 是专门用来监听 vm 上数据变化然后重新渲染的
     if (isRenderWatcher) {
       vm._watcher = this;
     }
@@ -5355,6 +5365,9 @@
       // $slots/$scopedSlots/_c/$createElement/$attrs/$listeners
       initRender(vm);
       // beforeCreate 生命函数钩子的回调
+      // 1.beforeCreate 的钩子函数中不能获取到 props、data 中定义的值，也不能调用 methods 中定义的函数，
+      // 因为 props、data、methods 这些属性是得等到下边 initState 方法中才会被初始化的！
+      // 2.插件 vue-router 和 vuex 在初始化时，会发现它们都往 beforeCreate 钩子函数注入了一些代码逻辑
       callHook(vm, 'beforeCreate');
       // 把 inject 的成员注入到 vm 上
       // 与下边的 initProvide 是一对, 用于实现组件之间的依赖注入
@@ -5382,6 +5395,7 @@
     };
   }
 
+  // initInternalComponent 只是做了简单一层对象赋值，并不涉及到递归、合并策略等复杂逻辑，相较于 mergeOptions（位置：src\core\util\options.js） 来说
   function initInternalComponent (vm, options) {
     var opts = vm.$options = Object.create(vm.constructor.options);
     // doing this because it's faster than dynamic enumeration.
@@ -5540,6 +5554,8 @@
      参数是一个包含组件option的对象。  https://cn.vuejs.org/v2/api/#Vue-extend-options
      */
     Vue.extend = function (extendOptions) {
+      // 这里传入的 extendOptions 对象可以理解为是 sfc 文件 export default 出来的那个对象，
+      // 不过是该对象上会多些额外的属性
       extendOptions = extendOptions || {};
       // this 即为 Vue构造函数
       /*父类的构造*/
@@ -6546,6 +6562,7 @@
         // skip all element-related modules except for ref (#3455)
         registerRef(vnode);
         // make sure to invoke the insert hook
+        // 放入 insertedVnodeQueue 的是占位符 VNode 实例
         insertedVnodeQueue.push(vnode);
       }
     }
@@ -6929,6 +6946,8 @@
       if (isTrue(initial) && isDef(vnode.parent)) {
         vnode.parent.data.pendingInsert = queue;
       } else {
+        // queue 即传入的是 insertedVnodeQueue，
+        // 而存在 data.hook.insert 属性的，就是组件的 VNode 实例，普通DOM节点是没有这些属性的！
         for (var i = 0; i < queue.length; ++i) {
           queue[i].data.hook.insert(queue[i]);
         }
@@ -7182,6 +7201,7 @@
 
       /*调用insert钩子*/
       // 根据之前递归 createElm 生成的 vnode 插入顺序队列，执行相关的 insert 钩子函数
+      // insertedVnodeQueue 的添加顺序是先子后父，所以对于同步渲染的子组件而言，mounted 钩子函数的执行顺序也是先子后父
       invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch);
       return vnode.elm
     }

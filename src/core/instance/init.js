@@ -75,6 +75,9 @@ export function initMixin (Vue: Class<Component>) {
     // $slots/$scopedSlots/_c/$createElement/$attrs/$listeners
     initRender(vm)
     // beforeCreate 生命函数钩子的回调
+    // 1.beforeCreate 的钩子函数中不能获取到 props、data 中定义的值，也不能调用 methods 中定义的函数，
+    // 因为 props、data、methods 这些属性是得等到下边 initState 方法中才会被初始化的！
+    // 2.插件 vue-router 和 vuex 在初始化时，会发现它们都往 beforeCreate 钩子函数注入了一些代码逻辑
     callHook(vm, 'beforeCreate')
     // 把 inject 的成员注入到 vm 上
     // 与下边的 initProvide 是一对, 用于实现组件之间的依赖注入
@@ -102,6 +105,7 @@ export function initMixin (Vue: Class<Component>) {
   }
 }
 
+// initInternalComponent 只是做了简单一层对象赋值，并不涉及到递归、合并策略等复杂逻辑，相较于 mergeOptions（位置：src\core\util\options.js） 来说
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.

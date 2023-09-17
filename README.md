@@ -14,11 +14,15 @@
 
 <h2 align="center">代码调试</h2>
 
-Vue.js内部运行机制流程图：
+### 1. Vue.js内部运行机制流程图
 
 ![](img/README/newVue.png)
 
+### 2. 内容参看
+
 配套学习博客：[Vue.js 技术揭秘](https://ustbhuangyi.github.io/vue-analysis/)。
+
+### 3. 调试前置工作
 
 为了便于调试，我们需要如下操作：
 
@@ -67,6 +71,12 @@ $ npm install
 另外，为了分析 Vue 的编译过程，这里选择 **`runtime + compiler`版本（即TARGET为`web-full-dev`）的Vue的入口文件为：`src/platforms/web/entry-runtime-with-compiler.js`** 作为分析入口文件。
 
 还有就是，当我们在项目开发中执行 `import Vue from 'vue'` 的时候，就是从这个入口开始去执行代码来初始化 Vue 的。
+
+### 4. 调试例子查看
+
+针对简单的示例，那么直接在 `examples/00-vue-analysis` 目录中，通过一个个 `.html` 文件打断点进行调试。
+
+对于涉及 sfc 的调试，则参看 `examples/vue-cli-vue2.6-project` 工程进行调试，对应于不同的调试需求，这些选择用打 tag 的方式记录不同的示例。
 
 
 

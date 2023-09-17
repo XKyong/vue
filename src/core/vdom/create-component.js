@@ -70,6 +70,7 @@ const componentVNodeHooks = {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
       componentInstance._isMounted = true
+      // 组件实例化过程中 mounted 钩子触发位置
       callHook(componentInstance, 'mounted')
     }
     if (vnode.data.keepAlive) {
