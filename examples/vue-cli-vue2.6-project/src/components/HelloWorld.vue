@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <h1>{{ desc }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br />
       check out the
@@ -91,6 +92,41 @@ export default {
   name: "HelloWorld",
   props: {
     msg: String,
+  },
+  data () {
+    return {
+      desc: 'this is HelloWorld component'
+    }
+  },
+  beforeCreate () {
+    console.log('HelloWorld beforeCreate')
+  },
+  created () {
+    console.log('HelloWorld created')
+
+    // 用以验证 beforeUpdate 和 updated 的执行顺序
+    // beforeUpdate 和 updated 的钩子函数执行时机都应该是在“数据更新”的时候
+    setTimeout(() => {
+      this.desc = '这是HelloWorld component'
+    }, 2000)
+  },
+  beforeUpdate () {
+    console.log('HelloWorld beforeUpdate')
+  },
+  updated () {
+    console.log('HelloWorld updated')
+  },
+  beforeMount () {
+    console.log('HelloWorld beforeMount')
+  },
+  mounted () {
+    console.log('HelloWorld mounted')
+  },
+  beforeDestroy () {
+    console.log('HelloWorld beforeDestroy')
+  },
+  destroyed () {
+    console.log('HelloWorld destroyed')
   }
 };
 </script>
