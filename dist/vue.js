@@ -66,6 +66,7 @@
    * Strict object type check. Only returns true
    * for plain JavaScript objects.
    */
+  /*对对象类型进行严格检查，只有当对象是纯javascript对象的时候返回true*/
   function isPlainObject (obj) {
     return _toString.call(obj) === '[object Object]'
   }
@@ -93,6 +94,7 @@
   /**
    * Convert a value to a string that is actually rendered.
    */
+  /*将val转化成字符串*/
   function toString (val) {
     return val == null
       ? ''
@@ -105,6 +107,7 @@
    * Convert an input value to a number for persistence.
    * If the conversion fails, return original string.
    */
+  /*将字符串转化为数字，如果转换失败会返回原字符串*/
   function toNumber (val) {
     var n = parseFloat(val);
     return isNaN(n) ? val : n
@@ -114,6 +117,17 @@
    * Make a map and return a function for checking if a key
    * is in that map.
    */
+  // 返回一个函数用以检测是否一个key值存在这个函数中
+  // 比如str = "a, b, c"
+  // 则返回 (key) => {
+  //   return map[key];
+  // }
+  // map为{
+  //   a: true,
+  //   b: true,
+  //   c: true
+  // }
+  // 存在expectsLowerCase参数的时候会将所有的参数转化成小写
   function makeMap (
     str,
     expectsLowerCase
@@ -161,6 +175,7 @@
   /**
    * Create a cached version of a pure function.
    */
+   /*根据str得到fn(str)的结果，但是这个结果会被闭包中的cache缓存起来，下一次如果是同样的str则不需要经过fn(str)重新计算，而是直接得到结果*/
   function cached (fn) {
     var cache = Object.create(null);
     return (function cachedFn (str) {
@@ -172,6 +187,7 @@
   /**
    * Camelize a hyphen-delimited string.
    */
+  /*将原本用-连接的字符串变成驼峰 aaa-bbb-ccc => aaaBbbCcc*/
   var camelizeRE = /-(\w)/g;
   var camelize = cached(function (str) {
     return str.replace(camelizeRE, function (_, c) { return c ? c.toUpperCase() : ''; })
@@ -180,6 +196,7 @@
   /**
    * Capitalize a string.
    */
+  /*首字母转大写*/
   var capitalize = cached(function (str) {
     return str.charAt(0).toUpperCase() + str.slice(1)
   });
@@ -187,6 +204,7 @@
   /**
    * Hyphenate a camelCase string.
    */
+  /*连接一个camelCase字符串。*/
   var hyphenateRE = /\B([A-Z])/g;
   var hyphenate = cached(function (str) {
     return str.replace(hyphenateRE, '-$1').toLowerCase()
@@ -226,6 +244,7 @@
   /**
    * Convert an Array-like object to a real Array.
    */
+  /*将类数组的对象转换成数组*/
   function toArray (list, start) {
     start = start || 0;
     var i = list.length - start;
@@ -239,6 +258,7 @@
   /**
    * Mix properties into target object.
    */
+   /*将_from的属性混合（会覆盖）to对象中*/
   function extend (to, _from) {
     for (var key in _from) {
       to[key] = _from[key];
@@ -249,6 +269,7 @@
   /**
    * Merge an Array of Objects into a single Object.
    */
+   /*合并Array数组中的每一个对象到一个新的Object中*/
   function toObject (arr) {
     var res = {};
     for (var i = 0; i < arr.length; i++) {
@@ -293,6 +314,7 @@
    * Check if two values are loosely equal - that is,
    * if they are plain objects, do they have the same shape?
    */
+   /*检测两个变量是否相等*/
   function looseEqual (a, b) {
     if (a === b) { return true }
     var isObjectA = isObject(a);
@@ -333,6 +355,7 @@
    * found in the array (if value is a plain object, the array must
    * contain an object of the same shape), or -1 if it is not present.
    */
+  /*检测arr数组中是否包含与val变量相等的项*/
   function looseIndexOf (arr, val) {
     for (var i = 0; i < arr.length; i++) {
       if (looseEqual(arr[i], val)) { return i }
@@ -2299,6 +2322,7 @@
     }
   });
 
+  /*返回一个函数，该函数的作用是将生成时的fns执行，如果fns是数组，则便利执行它的每一项*/
   function createFnInvoker (fns, vm) {
     function invoker () {
       var arguments$1 = arguments;
@@ -2318,6 +2342,7 @@
     return invoker
   }
 
+  /*更新监听事件*/
   function updateListeners (
     on,
     oldOn,
@@ -2327,17 +2352,21 @@
     vm
   ) {
     var name, def, cur, old, event;
+    /*遍历新事件的所有方法*/
     for (name in on) {
       def = cur = on[name];
       old = oldOn[name];
+      /*取得并去除事件的~、!、&等前缀*/
       event = normalizeEvent(name);
       if (isUndef(cur)) {
+         /*新方法不存在抛出打印*/
          warn(
           "Invalid handler for event \"" + (event.name) + "\": got " + String(cur),
           vm
         );
       } else if (isUndef(old)) {
         if (isUndef(cur.fns)) {
+           /*createFnInvoker返回一个函数，该函数的作用是将生成时的fns执行，如果fns是数组，则便利执行它的每一项*/
           cur = on[name] = createFnInvoker(cur, vm);
         }
         if (isTrue(event.once)) {
@@ -2349,6 +2378,7 @@
         on[name] = old;
       }
     }
+     /*移除所有旧的事件*/
     for (name in oldOn) {
       if (isUndef(on[name])) {
         event = normalizeEvent(name);
@@ -3382,6 +3412,7 @@
         // as a comment node but preserves all the raw information for the node.
         // the information will be used for async server-rendering and hydration.
         /*如果这是一个异步组件则会不会返回任何东西（undifiened），直接return掉，等待回调函数去触发父组件更新。s*/
+        // 创建一个注释节点 VNode 实例
         return createAsyncPlaceholder(
           asyncFactory,
           data,
@@ -3832,13 +3863,16 @@
 
   /*  */
 
+  // 将传入的内容（一般是 对象）转换为 VueComponent 构造函数
   function ensureCtor (comp, base) {
     if (
       comp.__esModule ||
       (hasSymbol && comp[Symbol.toStringTag] === 'Module')
     ) {
+      // esm 规范输出的 Module 示例，此时 default 属性即是 sfc 输出的 export default 后边输出的对象
       comp = comp.default;
     }
+    // 通过 base.extend 转换为构造函数
     return isObject(comp)
       ? base.extend(comp)
       : comp
@@ -3858,23 +3892,28 @@
   }
 
   function resolveAsyncComponent (
-    factory,
-    baseCtor
+    factory, // 用户传入的 Vue.component 方法调用时传入的第 2 个参数 definition 函数
+    baseCtor // Vue 构造函数
   ) {
+    // debugger
+    /*出错组件工厂返回出错组件*/
     if (isTrue(factory.error) && isDef(factory.errorComp)) {
       return factory.errorComp
     }
 
+    /*resoved时候返回resolved组件*/
     if (isDef(factory.resolved)) {
       return factory.resolved
     }
 
+    // 当前处理的 vm 示实例
     var owner = currentRenderingInstance;
     if (owner && isDef(factory.owners) && factory.owners.indexOf(owner) === -1) {
       // already pending
       factory.owners.push(owner);
     }
 
+    /*返回加载组件*/
     if (isTrue(factory.loading) && isDef(factory.loadingComp)) {
       return factory.loadingComp
     }
@@ -3889,10 +3928,18 @@
 
       var forceRender = function (renderCompleted) {
         for (var i = 0, l = owners.length; i < l; i++) {
+          // $forceUpdate 定义在 src\core\instance\lifecycle.js 文件中
+          // 调用 vm 实例的 $forceUpdate 方法，强制使得 vm._update(vm._render(), hydrating) 代码能够重新被执行
+          // 然后会再次进入当前这个 resolveAsyncComponent 函数内部
+          // 再次进入 resolveAsyncComponent 函数之前，如果异步请求的组件成功响应，则下边的 resolve 函数会被执行，然后 factory.resolved 会被赋值为 VueComponent 构造函数
+          // 则此次进入时上边的 if (isDef(factory.resolved)) 分支会被命中
+          // 之后代码流程返回 src\core\vdom\create-component.js 文件中，Ctor = resolveAsyncComponent(asyncFactory, baseCtor) 代码返回的是 VueComponent 构造函数
+          // 之后的逻辑就跟处理普通组件一样的了
           (owners[i]).$forceUpdate();
         }
 
         if (renderCompleted) {
+          // 清空 owners 数组，效果等价于 owners.splice(0)
           owners.length = 0;
           if (timerLoading !== null) {
             clearTimeout(timerLoading);
@@ -3905,6 +3952,7 @@
         }
       };
 
+      // 传入工厂函数的 resolve 回调函数
       var resolve = once(function (res) {
         // cache resolved
         factory.resolved = ensureCtor(res, baseCtor);
@@ -3917,6 +3965,7 @@
         }
       });
 
+      // 传入工厂函数的 reject 回调函数
       var reject = once(function (reason) {
          warn(
           "Failed to resolve async component: " + (String(factory)) +
@@ -3928,15 +3977,27 @@
         }
       });
 
+      // res 如果是 Promise 对象，则说明是通过 import() 语法导入的异步组件
+      // factory 函数的执行是异步的，因此该行代码后续的代码执行优先于 factory 函数结果 res 返回
       var res = factory(resolve, reject);
 
       if (isObject(res)) {
         if (isPromise(res)) {
+          // 进入该分支，说明异步组件注册是使用 import() 函数实现的
           // () => Promise
           if (isUndef(factory.resolved)) {
+            // 当 import() 语法触发的网络请求成功或失败响应后，这里的 resolve 和 reject 回调会被执行
+            // 然后就会调用 forceRender 函数
+            // 然后会再次进入当前这个 resolveAsyncComponent 函数内部
+            // 再次进入 resolveAsyncComponent 函数之前，如果异步请求的组件成功响应，则上边的 resolve 函数会被执行，然后 factory.resolved 会被赋值为 VueComponent 构造函数
+            // 则此次进入时上边的 if (isDef(factory.resolved)) 分支会被命中
+            // 之后代码流程返回 src\core\vdom\create-component.js 文件中，Ctor = resolveAsyncComponent(asyncFactory, baseCtor) 代码返回的是 VueComponent 构造函数
+            // 之后的逻辑就跟处理普通组件一样的了
             res.then(resolve, reject);
           }
         } else if (isPromise(res.component)) {
+          // 高级异步组件 会进入这个分支！
+
           res.component.then(resolve, reject);
 
           if (isDef(res.error)) {
@@ -3946,6 +4007,7 @@
           if (isDef(res.loading)) {
             factory.loadingComp = ensureCtor(res.loading, baseCtor);
             if (res.delay === 0) {
+              // delay 为 0，则对于高级异步组件，该 resolveAsyncComponent 直接返回 factory.loadingComp
               factory.loading = true;
             } else {
               timerLoading = setTimeout(function () {

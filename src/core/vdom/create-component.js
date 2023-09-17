@@ -161,6 +161,7 @@ export function createComponent (
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
       /*如果这是一个异步组件则会不会返回任何东西（undifiened），直接return掉，等待回调函数去触发父组件更新。s*/
+      // 创建一个注释节点 VNode 实例
       return createAsyncPlaceholder(
         asyncFactory,
         data,

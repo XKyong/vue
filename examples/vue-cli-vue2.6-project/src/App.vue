@@ -6,14 +6,8 @@
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
-
 export default {
-  name: "App",
-  components: {
-  // 局部注册组件
-    HelloWorld,
-  },
+  name: "App"
 };
 </script>
 

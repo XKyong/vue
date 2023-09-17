@@ -10,7 +10,13 @@
   <script>
     // 示例参看 examples/vue-cli-vue2.6-project 工程！
     // 相关注释也在工程中注明了！
-    
+    // 异步组件的代码执行也会先经过 src\core\vdom\create-component.js 文件中 createComponent 函数的处理
+    // 1.异步组件3种实现方式，涉及的核心代码在 src\core\vdom\helpers\resolve-async-component.js 文件中的 resolveAsyncComponent 函数
+    // (1)普通函数异步组件，通过 工厂函数 实现
+    // (2)Promise 异步组件，通过 import() 语法实现
+    // (3)高级异步组件，通过 对象配置 实现
+    // 2.通常情况下，异步组件实现的本质是2次渲染，先渲染成注释节点，当组件加载成功后，再通过forceRender重新渲染。
+    // 3.异步组件3种实现方式中，高级异步组件的设计是非常巧妙的，它可以通过简单的配置实现了loading、resolve、reject、timeout4种状态
   </script>
 </body>
 </html>
