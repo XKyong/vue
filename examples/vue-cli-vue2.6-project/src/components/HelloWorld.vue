@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <MyTitle />
     <h1>{{ msg }}</h1>
     <h1>{{ desc }}</h1>
     <p>
@@ -88,8 +89,13 @@
 </template>
 
 <script>
+import MyTitle from './MyTitle.vue'
+
 export default {
   name: "HelloWorld",
+  components: {
+    MyTitle
+  },
   props: {
     msg: String,
   },
