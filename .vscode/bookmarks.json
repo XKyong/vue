@@ -129,7 +129,7 @@
 					"label": "props和data，this.XXX属性返回值的源头"
 				},
 				{
-					"line": 50,
+					"line": 51,
 					"column": 43,
 					"label": "初始化 vm 的 _props, methods, _data, computed, watch，并把它们挂载到 vm 实例上，相关属性做响应式处理"
 				}
@@ -139,12 +139,12 @@
 			"path": "src/core/observer/index.js",
 			"bookmarks": [
 				{
-					"line": 36,
+					"line": 39,
 					"column": 23,
 					"label": "Observer 类"
 				},
 				{
-					"line": 117,
+					"line": 138,
 					"column": 77,
 					"label": "响应式处理入口"
 				}
@@ -244,7 +244,7 @@
 			"path": "src/core/observer/watcher.js",
 			"bookmarks": [
 				{
-					"line": 108,
+					"line": 112,
 					"column": 20,
 					"label": "watcher被作为 Dep.target 的执行代码"
 				}
@@ -319,7 +319,7 @@
 			"path": "src/core/observer/scheduler.js",
 			"bookmarks": [
 				{
-					"line": 136,
+					"line": 162,
 					"column": 29,
 					"label": "updated 生命周期钩子触发位置"
 				}

@@ -59,9 +59,11 @@ export default class Dep {
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
+/*依赖收集完需要将Dep.target设为null，防止后面重复添加依赖。*/
 Dep.target = null
 const targetStack = []
 
+/*将watcher观察者实例设置给Dep.target，用以依赖收集。同时将该实例存入target栈中*/
 export function pushTarget (target: ?Watcher) {
   // 入栈并将当前 watcher 赋值给 Dep.target
   // 需要注意的是，每个组件会对应一个 watcher 实例（mountComponent中创建）
@@ -69,6 +71,7 @@ export function pushTarget (target: ?Watcher) {
   Dep.target = target
 }
 
+/*将观察者实例从target栈中取出并设置给Dep.target*/
 export function popTarget () {
   targetStack.pop()
   Dep.target = targetStack[targetStack.length - 1]

@@ -17,6 +17,7 @@ function Vue (options) {
   this._init(options)
 }
 
+// 以下方法的执行，在 import Vue from 'vue' 执行过程中就会执行了！
 // 注册 vm 的 _init 方法，初始化 vm
 initMixin(Vue)
 // 注册 vm 的 $data/$props/$set/$delete/$watch
