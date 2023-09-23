@@ -73,7 +73,10 @@ export default class Watcher {
     this.id = ++uid // uid for batching
     this.active = true
     this.dirty = this.lazy // for lazy watchers
+    // deps 和 newDeps 在 watcher 实例中执行 get 方法调用 cleanupDeps 方法时会进行交换！
+    // deps 表示上一次添加的 Dep 实例数组
     this.deps = []
+    // newDeps 表示新添加的 Dep 实例数组
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
@@ -164,9 +167,10 @@ export default class Watcher {
   /**
    * Clean up for dependency collection.
    * 将 Watcher 实例从 Dep 实例的 subs 数组中移除，
-   * 同时将 Watcher 实例中的 Dep 实例也移除
+   * 同时将本次执行 get 方法传入的 dep 实例及其id保存到 deps 和 depIds 中，并清除 newDeps 和 newDepIds 中的数据
    */
   cleanupDeps () {
+    // 遍历 deps，移除对 dep.subs 数组中 Watcher 的订阅
     let i = this.deps.length
     while (i--) {
       const dep = this.deps[i]
@@ -174,13 +178,16 @@ export default class Watcher {
         dep.removeSub(this)
       }
     }
+
     let tmp = this.depIds
     this.depIds = this.newDepIds
     this.newDepIds = tmp
+    // 此时 this.newDepIds 的值存的是 depIds，通过调用 clear 方法将老的依赖 ids 清除掉
     this.newDepIds.clear()
     tmp = this.deps
     this.deps = this.newDeps
     this.newDeps = tmp
+    // 此时 this.newDeps 的值存的是 deps，通过执行 length = 0 将老的依赖 deps 清除掉
     this.newDeps.length = 0
   }
 
@@ -195,6 +202,7 @@ export default class Watcher {
     /* istanbul ignore else */
     // 渲染 watcher 的 lazy 和 sync 均为 false
     if (this.lazy) {
+      // computed watcher 会进入这里
       this.dirty = true
     } else if (this.sync) {
       /*同步则执行run直接渲染视图*/
@@ -231,7 +239,9 @@ export default class Watcher {
         const oldValue = this.value
         this.value = value
         if (this.user) {
-          // 用户 watcher 会走到这个分支
+          // 用户 watcher （即用户传入的 watch 属性）会走到这个分支
+          // 回调函数执行的时候会把第一个和第二个参数传入新值 value 和旧值 oldValue，
+          // 这就是当我们添加自定义 watcher 的时候能在回调函数的参数中拿到新旧值的原因
           try {
             this.cb.call(this.vm, value, oldValue)
           } catch (e) {

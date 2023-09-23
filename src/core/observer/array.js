@@ -50,11 +50,12 @@ methodsToPatch.forEach(function (method) {
         inserted = args.slice(2)
         break
     }
-    // 有新增的元素, 遍历新增的数组,
+    // 有新增的元素, 遍历改变后的数组,
     // 将新增的数组元素(如果数组元素是对象的话)设置为响应式数据
     if (inserted) ob.observeArray(inserted)
     // notify change
     /*dep通知所有注册的观察者进行响应式处理*/
+    // 比如通知渲染Watcher去重新渲染 
     ob.dep.notify()
     return result
   })

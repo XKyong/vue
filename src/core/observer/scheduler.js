@@ -21,6 +21,7 @@ let has: { [key: number]: ?true } = {}
 let circular: { [key: number]: number } = {}
 let waiting = false
 let flushing = false
+// index 表明queue当前正在被处理的watcher的索引值
 let index = 0
 
 /**
@@ -94,7 +95,10 @@ function flushSchedulerQueue () {
 
   // do not cache length because more watchers might be pushed
   // as we run existing watchers
-  /*这里不用index = queue.length;index > 0; index--的方式写是因为不要将length进行缓存，因为在执行处理现有watcher对象期间，更多的watcher对象可能会被push进queue*/
+  /*这里不用index = queue.length;index > 0; index--的方式写是因为不要将length进行缓存，
+    因为在执行处理现有watcher对象期间，更多的watcher对象可能会被push进queue，
+    即 watcher.run 方法执行期间，用户会再次添加新的 watcher，这样会再次执行到 queueWatcher
+  */
   for (index = 0; index < queue.length; index++) {
     watcher = queue[index]
     // 触发 beforeUpdate 钩子函数
@@ -135,6 +139,7 @@ function flushSchedulerQueue () {
 
   // keep copies of post queues before resetting state
    /*得到队列的拷贝*/
+  // activatedQueue 跟 keepalive 组件相关
   const activatedQueue = activatedChildren.slice()
   const updatedQueue = queue.slice()
 
@@ -160,6 +165,7 @@ function callUpdatedHooks (queue) {
     const watcher = queue[i]
     const vm = watcher.vm
     if (vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
+      // defineReactive 函数中 setter 派发更新后（路径：src\core\observer\index.js），当页面重新渲染完成后，经过一系列操作，最终在这里触发渲染 Watcher 的 updated 钩子函数
       callHook(vm, 'updated')
     }
   }
@@ -194,6 +200,7 @@ function callActivatedHooks (queue) {
  * pushed when the queue is being flushed.
  */
 /*将一个观察者对象push进观察者队列，在队列中已经存在相同的id则该观察者对象将被跳过，除非它是在队列被刷新时推送*/
+// Vue 在做派发更新的时候的一个优化的点，它并不会每次数据改变都触发 watcher 的回调，而是把这些 watcher 先添加到一个队列里，然后在 nextTick 后执行 flushSchedulerQueue
 export function queueWatcher (watcher: Watcher) {
   /*获取watcher的id*/
   const id = watcher.id
@@ -206,6 +213,7 @@ export function queueWatcher (watcher: Watcher) {
       // 即 queue 未被处理，直接将 watcher 放到队列末尾
       queue.push(watcher)
     } else {
+      // 走到这里，就说明执行 watcher.run 的时候，用户会再次添加新的 watcher，这样会再次执行到 queueWatcher
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
       let i = queue.length - 1
@@ -213,6 +221,8 @@ export function queueWatcher (watcher: Watcher) {
       while (i > index && queue[i].id > watcher.id) {
         i--
       }
+
+      // 从后往前比较，找到 queue[i].id 对应watcher索引位置前面的位置
       queue.splice(i + 1, 0, watcher)
     }
     // queue the flush

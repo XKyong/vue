@@ -8,8 +8,12 @@ import { isIE, isIOS, isNative } from './env'
 export let isUsingMicroTask = false
 
 const callbacks = []
+// pending 可以理解为“即将发生的”，
+// 设置为 true 表示放入任务队列中的任务（可以理解为回调函数）正在等待被执行
+// 设置为 false，则表示任务还未开始执行或者已经正在执行中了，不用等了
 let pending = false
 
+// 这里的 flushCallbacks 最好跟 src\core\observer\scheduler.js 文件中的 flushSchedulerQueue 配合做理解
 function flushCallbacks () {
   pending = false
   const copies = callbacks.slice(0)
@@ -84,8 +88,13 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   }
 }
 
+// 1.nextTick 支持传入 cb 然后在当前所有同步的代码执行完之后，执行微任务队列中的 flushCallbacks 回调函数；
+// 2.也支持不传入 cb，然后返回一个 Promise 对象，之后在当前所有同步的代码执行完之后，执行微任务队列中的 flushCallbacks 回调函数，
+// 最后通过 _resolve(ctx) 将返回的 Promise 对象状态设置为 fulfilled 
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
+  // 这里使用 callbacks 而不是直接在 nextTick 中执行回调函数的原因是保证在同一个 tick 内多次执行 nextTick，
+  // 不会开启多个异步任务，而是把这些异步任务都压成一个同步任务，在下一个 tick 统一执行完毕
   callbacks.push(() => {
     if (cb) {
       try {

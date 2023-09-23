@@ -6,11 +6,49 @@
   <title>16-nextTick</title>
 </head>
 <body>
-  <h1>16-nextTick</h1>
+  <div id="app">
+    <h3 ref="msg">{{ msg }}</h3>
+    <button @click="changeMsg">changeMsg</button>
+  </div>
+  <script src="../../dist/vue.js"></script>
   <script>
-    // 示例参看 examples/vue-cli-vue2.6-project 工程！
-    // 相关注释也在工程中注明了！
-    
+    // 1.结合上一节的 setter 分析，我们了解到数据的变化到 DOM 的重新渲染是一个异步过程，发生在下一个 tick，因为经过了 nextTick(flushSchedulerQueue) 处理，而 flushSchedulerQueue 执行过程中会触发DOM的重新渲染
+    // 2.Vue.js 提供了 2 种调用 nextTick 的方式，一种是全局 API Vue.nextTick（路径：src\core\global-api\index.js），一种是实例上的方法 vm.$nextTick（路径：src\core\instance\render.js），
+    // 无论我们使用哪一种，最后都是调用 next-tick.js 中实现的 nextTick 方法（路径：src\core\util\next-tick.js）
+    // 3.nextTick 应该是在 数据变化之后 调用才能发挥作用
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          msg: 'hello world'
+        }
+      },
+      methods: {
+        changeMsg () {
+          this.$nextTick(() => {
+            // 为啥这里拿到的还是 hello world？
+            // 1.因为这里传入 $nextTick 的回调先于 nextTick(flushSchedulerQueue) 执行，
+            // 因此该回调放入微任务队列中的时机早于下边说到的 flushSchedulerQueue 回调,
+            // 而由于队列“先进先出”的特性，当该回调执行时，flushSchedulerQueue 回调还没有执行，也即DOM还没有重新渲染，
+            // 因此拿到的还是旧的值 hello world
+            // 2.这其实也说明了一个问题，那就是 nextTick 应该是在 数据变化之后 调用才能发挥作用
+            console.log('nextTick before msg is changed: ', this.$refs.msg.innerText) // hello world
+          })
+
+          // 这里会触发 defineReactive setter 进行派发更新操作
+          // 最终调用 nextTick(flushSchedulerQueue)，将 flushSchedulerQueue 回调的执行放到了微任务队列中，进行DOM的重新渲染
+          this.msg = 'hello vue'
+          console.log('sync: ', this.$refs.msg.innerText) // hello world
+          this.$nextTick(() => {
+            console.log('nextTick after msg is changed: ', this.$refs.msg.innerText) // hello vue
+          })
+
+          this.$nextTick().then(() => {
+            console.log('nextTick with promise: ', this.$refs.msg.innerText) // hello vue
+          })
+        }
+      }
+    })
   </script>
 </body>
 </html>

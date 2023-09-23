@@ -144,7 +144,7 @@
 					"label": "Observer 类"
 				},
 				{
-					"line": 138,
+					"line": 141,
 					"column": 77,
 					"label": "响应式处理入口"
 				}
@@ -209,32 +209,32 @@
 					"label": "Watcher实例首次被创建的位置"
 				},
 				{
-					"line": 254,
+					"line": 256,
 					"column": 36,
 					"label": "beforeUpdate 生命周期钩子触发位置"
 				},
 				{
-					"line": 267,
+					"line": 269,
 					"column": 27,
 					"label": "mounted 生命周期钩子触发位置1"
 				},
 				{
-					"line": 377,
+					"line": 379,
 					"column": 29,
 					"label": "activated 生命周期钩子触发位置"
 				},
 				{
-					"line": 393,
+					"line": 395,
 					"column": 31,
 					"label": "deactivated 生命周期钩子触发位置"
 				},
 				{
-					"line": 398,
+					"line": 400,
 					"column": 56,
 					"label": "callHook：执行生命周期的函数定义位置"
 				},
 				{
-					"line": 406,
+					"line": 408,
 					"column": 62,
 					"label": "生命周期钩子内部的 this 指向，在这里被处理"
 				}
@@ -244,7 +244,7 @@
 			"path": "src/core/observer/watcher.js",
 			"bookmarks": [
 				{
-					"line": 112,
+					"line": 115,
 					"column": 20,
 					"label": "watcher被作为 Dep.target 的执行代码"
 				}
@@ -309,9 +309,9 @@
 					"label": "传入用户手写的 render 函数中的 h 函数出处"
 				},
 				{
-					"line": 104,
+					"line": 105,
 					"column": 61,
-					"label": "调用 render 函数生成 Vnode 实例"
+					"label": "调用 render 函数生成 Vnode 实例，该过程会进行渲染 watcher 的“依赖收集”操作"
 				}
 			]
 		},
@@ -319,7 +319,7 @@
 			"path": "src/core/observer/scheduler.js",
 			"bookmarks": [
 				{
-					"line": 162,
+					"line": 168,
 					"column": 29,
 					"label": "updated 生命周期钩子触发位置"
 				}

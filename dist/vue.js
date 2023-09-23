@@ -960,11 +960,12 @@
           inserted = args.slice(2);
           break
       }
-      // 有新增的元素, 遍历新增的数组,
+      // 有新增的元素, 遍历改变后的数组,
       // 将新增的数组元素(如果数组元素是对象的话)设置为响应式数据
       if (inserted) { ob.observeArray(inserted); }
       // notify change
       /*dep通知所有注册的观察者进行响应式处理*/
+      // 比如通知渲染Watcher去重新渲染 
       ob.dep.notify();
       return result
     });
@@ -1010,9 +1011,12 @@
       */
       if (hasProto) {
         /*直接覆盖原型的方法来修改目标对象*/
+        // 让 value.__proto__ 指向 arrayMethods 对象
+        // 而 arrayMethods.__proto__ 指向 Array.prototype
         protoAugment(value, arrayMethods);
       } else {
         /*定义（覆盖）目标对象或数组的某一个方法*/
+        // 给 value 上添加 push/splice/shift 等属性，属性的值为 Array.prototype 上对应的函数体
         copyAugment(value, arrayMethods, arrayKeys);
       }
       // 为数组中每个对象创建一个 observer 实例
@@ -1160,10 +1164,13 @@
         // 如果存在当前依赖目标(即 watcher 对象)，建立依赖
         if (Dep.target) {
           // 依赖收集，内部首先会将 dep 对象放到 watcher 对象集合中，然后会将 watcher 对象放到 dep 对象的 subs 数组中
+          // depend 内部调用方法：Dep.target.addDep(this) -> dep.addSub(this)
           dep.depend();
           // 如果子观察目标存在，建立子对象的依赖关系
           /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个depend中，一个是正在本身闭包中的depend，另一个是子元素的depend*/
           if (childOb) {
+            // 配合 Vue.set 方法使用
+            // 如果该行代码被注释掉，则调用 Vue.set 方法动态给对象添加属性，派发更新，渲染watcher的 update 过程不会执行，页面不会被重新渲染
             childOb.dep.depend();
             // 如果属性值是数组，则特殊处理收集数组对象依赖
             /*是数组则需要对每一个成员都进行依赖收集，如果数组的成员还是数组，则递归。*/
@@ -1225,7 +1232,7 @@
       /*因为数组不需要进行响应式处理，数组会修改七个Array原型上的方法来进行响应式处理*/
       return val
     }
-    // 如果 key 在 target 上已经存在，则直接赋值
+    // 如果 key 在 target 上已经存在，则直接赋值即可，因为 key 已经被响应式处理过了
     if (key in target && !(key in Object.prototype)) {
       target[key] = val;
       return val
@@ -1256,7 +1263,8 @@
     // 把 key 设置为响应式属性
     /*为对象defineProperty上在变化时通知的属性*/
     defineReactive(ob.value, key, val);
-    // 发送通知
+    // 手动派发更新，配合 defineReactive 中的 getter 方法中的 childOb.dep.depend() 使用
+    // 比如通知渲染Watcher去重新渲染
     ob.dep.notify();
     return val
   }
@@ -2108,8 +2116,12 @@
   var isUsingMicroTask = false;
 
   var callbacks = [];
+  // pending 可以理解为“即将发生的”，
+  // 设置为 true 表示放入任务队列中的任务（可以理解为回调函数）正在等待被执行
+  // 设置为 false，则表示任务还未开始执行或者已经正在执行中了，不用等了
   var pending = false;
 
+  // 这里的 flushCallbacks 最好跟 src\core\observer\scheduler.js 文件中的 flushSchedulerQueue 配合做理解
   function flushCallbacks () {
     pending = false;
     var copies = callbacks.slice(0);
@@ -2184,8 +2196,13 @@
     };
   }
 
+  // 1.nextTick 支持传入 cb 然后在当前所有同步的代码执行完之后，执行微任务队列中的 flushCallbacks 回调函数；
+  // 2.也支持不传入 cb，然后返回一个 Promise 对象，之后在当前所有同步的代码执行完之后，执行微任务队列中的 flushCallbacks 回调函数，
+  // 最后通过 _resolve(ctx) 将返回的 Promise 对象状态设置为 fulfilled 
   function nextTick (cb, ctx) {
     var _resolve;
+    // 这里使用 callbacks 而不是直接在 nextTick 中执行回调函数的原因是保证在同一个 tick 内多次执行 nextTick，
+    // 不会开启多个异步任务，而是把这些异步任务都压成一个同步任务，在下一个 tick 统一执行完毕
     callbacks.push(function () {
       if (cb) {
         try {
@@ -3879,6 +3896,7 @@
         //   : nodeOps.createElement(tag, vnode)
         // (2) 文本或注释节点
         // vnode.elm = nodeOps.createComment(vnode.text)
+        // 3.render 执行过程中，会触发响应式对象的 getter 方法（路径：src\core\observer\index.js），进而进行“依赖收集”的操作！
         vnode = render.call(vm._renderProxy, vm.$createElement);
       } catch (e) {
         handleError(e, vm, "render");
@@ -4495,8 +4513,10 @@
     // 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
     new Watcher(vm, updateComponent, noop, {
       before: function before () {
-        // beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
-        // vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数
+        // 1.beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
+        // 2.vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数，
+        // 具体点是，当触发 defineReactive 中的 setter 时，调用 dep.notify 方法执行过程中，即派发更新过程，
+        // 在 flushSchedulerQueue 函数中回调执行该 before 方法（路径：src\core\observer\scheduler.js）
         if (vm._isMounted && !vm._isDestroyed) {
           callHook(vm, 'beforeUpdate');
         }
@@ -4670,6 +4690,7 @@
   var circular = {};
   var waiting = false;
   var flushing = false;
+  // index 表明queue当前正在被处理的watcher的索引值
   var index = 0;
 
   /**
@@ -4743,7 +4764,10 @@
 
     // do not cache length because more watchers might be pushed
     // as we run existing watchers
-    /*这里不用index = queue.length;index > 0; index--的方式写是因为不要将length进行缓存，因为在执行处理现有watcher对象期间，更多的watcher对象可能会被push进queue*/
+    /*这里不用index = queue.length;index > 0; index--的方式写是因为不要将length进行缓存，
+      因为在执行处理现有watcher对象期间，更多的watcher对象可能会被push进queue，
+      即 watcher.run 方法执行期间，用户会再次添加新的 watcher，这样会再次执行到 queueWatcher
+    */
     for (index = 0; index < queue.length; index++) {
       watcher = queue[index];
       // 触发 beforeUpdate 钩子函数
@@ -4784,6 +4808,7 @@
 
     // keep copies of post queues before resetting state
      /*得到队列的拷贝*/
+    // activatedQueue 跟 keepalive 组件相关
     var activatedQueue = activatedChildren.slice();
     var updatedQueue = queue.slice();
 
@@ -4809,6 +4834,7 @@
       var watcher = queue[i];
       var vm = watcher.vm;
       if (vm._watcher === watcher && vm._isMounted && !vm._isDestroyed) {
+        // defineReactive 函数中 setter 派发更新后（路径：src\core\observer\index.js），当页面重新渲染完成后，经过一系列操作，最终在这里触发渲染 Watcher 的 updated 钩子函数
         callHook(vm, 'updated');
       }
     }
@@ -4843,6 +4869,7 @@
    * pushed when the queue is being flushed.
    */
   /*将一个观察者对象push进观察者队列，在队列中已经存在相同的id则该观察者对象将被跳过，除非它是在队列被刷新时推送*/
+  // Vue 在做派发更新的时候的一个优化的点，它并不会每次数据改变都触发 watcher 的回调，而是把这些 watcher 先添加到一个队列里，然后在 nextTick 后执行 flushSchedulerQueue
   function queueWatcher (watcher) {
     /*获取watcher的id*/
     var id = watcher.id;
@@ -4855,6 +4882,7 @@
         // 即 queue 未被处理，直接将 watcher 放到队列末尾
         queue.push(watcher);
       } else {
+        // 走到这里，就说明执行 watcher.run 的时候，用户会再次添加新的 watcher，这样会再次执行到 queueWatcher
         // if already flushing, splice the watcher based on its id
         // if already past its id, it will be run next immediately.
         var i = queue.length - 1;
@@ -4862,6 +4890,8 @@
         while (i > index && queue[i].id > watcher.id) {
           i--;
         }
+
+        // 从后往前比较，找到 queue[i].id 对应watcher索引位置前面的位置
         queue.splice(i + 1, 0, watcher);
       }
       // queue the flush
@@ -4919,7 +4949,10 @@
     this.id = ++uid$1; // uid for batching
     this.active = true;
     this.dirty = this.lazy; // for lazy watchers
+    // deps 和 newDeps 在 watcher 实例中执行 get 方法调用 cleanupDeps 方法时会进行交换！
+    // deps 表示上一次添加的 Dep 实例数组
     this.deps = [];
+    // newDeps 表示新添加的 Dep 实例数组
     this.newDeps = [];
     this.depIds = new _Set();
     this.newDepIds = new _Set();
@@ -5009,9 +5042,10 @@
   /**
    * Clean up for dependency collection.
    * 将 Watcher 实例从 Dep 实例的 subs 数组中移除，
-   * 同时将 Watcher 实例中的 Dep 实例也移除
+   * 同时将本次执行 get 方法传入的 dep 实例及其id保存到 deps 和 depIds 中，并清除 newDeps 和 newDepIds 中的数据
    */
   Watcher.prototype.cleanupDeps = function cleanupDeps () {
+    // 遍历 deps，移除对 dep.subs 数组中 Watcher 的订阅
     var i = this.deps.length;
     while (i--) {
       var dep = this.deps[i];
@@ -5019,13 +5053,16 @@
         dep.removeSub(this);
       }
     }
+
     var tmp = this.depIds;
     this.depIds = this.newDepIds;
     this.newDepIds = tmp;
+    // 此时 this.newDepIds 的值存的是 depIds，通过调用 clear 方法将老的依赖 ids 清除掉
     this.newDepIds.clear();
     tmp = this.deps;
     this.deps = this.newDeps;
     this.newDeps = tmp;
+    // 此时 this.newDeps 的值存的是 deps，通过执行 length = 0 将老的依赖 deps 清除掉
     this.newDeps.length = 0;
   };
 
@@ -5040,6 +5077,7 @@
     /* istanbul ignore else */
     // 渲染 watcher 的 lazy 和 sync 均为 false
     if (this.lazy) {
+      // computed watcher 会进入这里
       this.dirty = true;
     } else if (this.sync) {
       /*同步则执行run直接渲染视图*/
@@ -5076,7 +5114,9 @@
         var oldValue = this.value;
         this.value = value;
         if (this.user) {
-          // 用户 watcher 会走到这个分支
+          // 用户 watcher （即用户传入的 watch 属性）会走到这个分支
+          // 回调函数执行的时候会把第一个和第二个参数传入新值 value 和旧值 oldValue，
+          // 这就是当我们添加自定义 watcher 的时候能在回调函数的参数中拿到新旧值的原因
           try {
             this.cb.call(this.vm, value, oldValue);
           } catch (e) {

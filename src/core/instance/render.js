@@ -102,6 +102,7 @@ export function renderMixin (Vue: Class<Component>) {
       //   : nodeOps.createElement(tag, vnode)
       // (2) 文本或注释节点
       // vnode.elm = nodeOps.createComment(vnode.text)
+      // 3.render 执行过程中，会触发响应式对象的 getter 方法（路径：src\core\observer\index.js），进而进行“依赖收集”的操作！
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

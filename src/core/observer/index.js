@@ -62,9 +62,12 @@ export class Observer {
       */
       if (hasProto) {
         /*直接覆盖原型的方法来修改目标对象*/
+        // 让 value.__proto__ 指向 arrayMethods 对象
+        // 而 arrayMethods.__proto__ 指向 Array.prototype
         protoAugment(value, arrayMethods)
       } else {
         /*定义（覆盖）目标对象或数组的某一个方法*/
+        // 给 value 上添加 push/splice/shift 等属性，属性的值为 Array.prototype 上对应的函数体
         copyAugment(value, arrayMethods, arrayKeys)
       }
       // 为数组中每个对象创建一个 observer 实例
@@ -213,10 +216,13 @@ export function defineReactive (
       // 如果存在当前依赖目标(即 watcher 对象)，建立依赖
       if (Dep.target) {
         // 依赖收集，内部首先会将 dep 对象放到 watcher 对象集合中，然后会将 watcher 对象放到 dep 对象的 subs 数组中
+        // depend 内部调用方法：Dep.target.addDep(this) -> dep.addSub(this)
         dep.depend()
         // 如果子观察目标存在，建立子对象的依赖关系
         /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个depend中，一个是正在本身闭包中的depend，另一个是子元素的depend*/
         if (childOb) {
+          // 配合 Vue.set 方法使用
+          // 如果该行代码被注释掉，则调用 Vue.set 方法动态给对象添加属性，派发更新，渲染watcher的 update 过程不会执行，页面不会被重新渲染
           childOb.dep.depend()
           // 如果属性值是数组，则特殊处理收集数组对象依赖
           /*是数组则需要对每一个成员都进行依赖收集，如果数组的成员还是数组，则递归。*/
@@ -278,7 +284,7 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     /*因为数组不需要进行响应式处理，数组会修改七个Array原型上的方法来进行响应式处理*/
     return val
   }
-  // 如果 key 在 target 上已经存在，则直接赋值
+  // 如果 key 在 target 上已经存在，则直接赋值即可，因为 key 已经被响应式处理过了
   if (key in target && !(key in Object.prototype)) {
     target[key] = val
     return val
@@ -309,7 +315,8 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
   // 把 key 设置为响应式属性
   /*为对象defineProperty上在变化时通知的属性*/
   defineReactive(ob.value, key, val)
-  // 发送通知
+  // 手动派发更新，配合 defineReactive 中的 getter 方法中的 childOb.dep.depend() 使用
+  // 比如通知渲染Watcher去重新渲染
   ob.dep.notify()
   return val
 }

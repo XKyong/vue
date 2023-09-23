@@ -249,8 +249,10 @@ export function mountComponent (
   // 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
   new Watcher(vm, updateComponent, noop, {
     before () {
-      // beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
-      // vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数
+      // 1.beforeUpdate 的执行时机是在渲染 Watcher 的 before 函数中
+      // 2.vm 实例上的数据发生更新时，当 vm 已经挂载完成并且还没被销毁时，触发 beforeUpdate 钩子函数，
+      // 具体点是，当触发 defineReactive 中的 setter 时，调用 dep.notify 方法执行过程中，即派发更新过程，
+      // 在 flushSchedulerQueue 函数中回调执行该 before 方法（路径：src\core\observer\scheduler.js）
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }

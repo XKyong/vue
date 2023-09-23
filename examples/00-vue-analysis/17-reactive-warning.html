@@ -6,11 +6,54 @@
   <title>17-reactive-warning</title>
 </head>
 <body>
-  <h1>17-reactive-warning</h1>
+  <div id="app">
+    <h3>{{ msg }}</h3>
+    <ul>
+      <li v-for="item in items">{{ item }}</li>
+    </ul>
+    <button @click="add">add</button>
+    <button @click="change">change</button>
+  </div>
+  <script src="../../dist/vue.js"></script>
   <script>
-    // 示例参看 examples/vue-cli-vue2.6-project 工程！
-    // 相关注释也在工程中注明了！
-    
+    // 官网链接：https://v2.cn.vuejs.org/v2/guide/reactivity.html#%E6%A3%80%E6%B5%8B%E5%8F%98%E5%8C%96%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9
+    // 1.Vue.set/delete 函数的定义位置：src\core\global-api\index.js，执行的set/delete方法在 src\core\observer\index.js 文件中
+    // 2.响应式数据中对于对象新增删除属性，以及数组下标访问修改和添加数据等的变化是观测不到的，即无法触发 defineReactive 中的 setter 函数
+    // 3.通过 Vue.set 以及数组的 API 可以解决这些问题，本质上是他们内部手动去做了依赖更新的派发（ob.dep.notify）
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          msg: {
+            a: 'hello'
+          },
+          items: [1, 2]
+        }
+      },
+      methods: {
+        change () {n
+          // 错误写法
+          // this.items[1] = 3
+
+          // 正确写法
+          Vue.set(this.items, 1, 3)
+          // this.items.splice(1, 1, 3)
+        },
+        add () {
+          // 错误写法
+          // this.msg.b = 'Vue'
+          
+          // 正确写法
+          Vue.set(this.msg, 'b', 'Vue')
+
+          // 错误写法
+          // this.items[2] = 4
+
+          // 正确写法
+          this.items.push(4)
+        }
+      }
+    })
   </script>
 </body>
 </html>

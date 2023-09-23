@@ -6,11 +6,55 @@
   <title>15-setter</title>
 </head>
 <body>
-  <h1>15-setter</h1>
+  <div id="app">
+    <div v-if="flag">
+      {{ msg }}
+    </div>
+    <div v-else>
+      {{ msg1 }}
+    </div>
+    <button @click="change">change</button>
+    <button @click="toggle">toggle</button>
+  </div>
+  <script src="../../dist/vue.js"></script>
   <script>
-    // 示例参看 examples/vue-cli-vue2.6-project 工程！
-    // 相关注释也在工程中注明了！
-    
+    // 总结一下派发更新的过程：
+    // 1.当数据发生变化的时候，触发 defineReactive setter 逻辑（路径：src\core\observer\index.js），然后触发 dep.notify() 方法，
+    // 把在依赖收集过程中订阅的所有观察者，也就是 watcher，都触发它们的 update 过程。
+    // 该过程如果是异步（即 sync 为 false）的话，这个过程又利用了队列做了进一步优化，具体体现为调用 queueWatcher 方法进行处理（路径：src\core\observer\scheduler.js），
+    // 最后调用 nextTick(flushSchedulerQueue) 在下一次 tick 时执行所有 watcher 的 run 方法，
+    // 在该方法中，如果被处理的是渲染 Watcher，则会重新执行 src\core\instance\lifecycle.js 文件中的“vm._update(vm._render(), hydrating)”代码，然后完成页面内容的重新渲染
+    // 2.派发更新涉及代码调用流程：
+    // defineReactive setter -> dep.notify -> watcher.update -> queueWatcher 
+    // -> nextTick(flushSchedulerQueue) -> flushSchedulerQueue 
+    // -> watcher.before（渲染watcher） -> watcher.run -> watcher.get -> this.getter.call(vm, vm) -> this.cb.call(this.vm, value, oldValue)
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          flag: true,
+          msg: 'Hello World',
+          msg1: 'Hello Vue'
+        }
+      },
+      methods: {
+        change () {
+          this.msg = Math.random()
+        },
+        toggle () {
+          this.flag = !this.flag
+        }
+      },
+      // 当 watch 存在死循环时，会发生什么？
+      // 涉及的核心代码在 src\core\observer\scheduler.js 文件中的 flushSchedulerQueue 函数中
+      // user watcher
+      // 控制台报错内容：debug.js:24 [Vue warn]: You may have an infinite update loop in watcher with expression "msg"
+      watch: {
+        msg () {
+          this.msg = Math.random()
+        }
+      }
+    })
   </script>
 </body>
 </html>
