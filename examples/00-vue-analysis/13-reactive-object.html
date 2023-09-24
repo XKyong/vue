@@ -7,24 +7,36 @@
 </head>
 <body>
   <div id="app">
-    <h2>{{ nested.a }}</h2>
+    <!-- <h2>{{ nested.a }}</h2> -->
+    <h2>{{ arr }}</h2>
   </div>
   <script src="../../dist/vue.js"></script>
   <script>
     // 1.响应式对象核心是利用 Object.defineProperty 给对象的属性添加 getter 和 setter
     // 2.Vue 内部会把 props、data 等变成响应式对象，在创建的过程中，发现子属性也为对象，则递归把该对象也变成响应式的，递归方式为 DFS（深度优先遍历）
     // 3.经过调试发现，响应式对象处理过程经过的代码流程有：
-    // (1) 对于用户传入的 data 属性，且 data 属性返回的必须是一个 plain object，对于该对象中的每个属性： 
-    //     如果值为对象，则 initMixin -> initState -> initData -> observe -> new Observer（给对象添加 __ob__ 属性）-> walk -> defineReactive
+    // (1) 对于用户传入的 data 属性，且 data 属性返回的必须是一个 plain object，则： 
+    //     如果值为对象，则 initMixin -> initState -> initData -> observe -> new Observer（给对象添加 __ob__ 属性，标识该对象是响应式对象）-> walk -> defineReactive
     //     如果值为数组，则 initMixin -> initState -> initData -> observe -> new Observer -> observeArray -> observe
     // (2) 对于用户传入的 props 属性，则：initMixin -> initState -> initProps -> defineReactive
     new Vue({
       el: '#app',
       data () {
         return {
-          nested: {
-            a: 'i am 13-reactive-object'
-          }
+          // 值是对象
+          // nested: {
+          //   a: 'i am 13-reactive-object'
+          // }
+          // 值是数组
+          arr: [
+            10,
+            {
+              name: 'kai'
+            },
+            // () => console.log('i am arrow fn!'),
+            function () { console.log('i am common fn') },
+            30
+          ]
         }
       }
     })    

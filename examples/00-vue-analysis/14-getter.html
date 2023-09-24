@@ -23,10 +23,12 @@
     // 进而会进入 defineReactive 函数的 getter 方法中（路径：src\core\observer\index.js），然后调用 dep.depend() 进行依赖收集的过程
     // 2.Watcher 实例化过程中会执行“this.get()”，对于该 get 方法，尤其注意其内部的 cleanupDeps 方法调用，即依赖清空的过程，这里以上边的例子为例，分析 cleanupDeps 方法设计的巧妙之处：
     // 上述模板中，会根据 v-if 和 flag 的值分别去渲染 msg 和 msg1 的值，
-    // 当我们 flag 为 true 渲染 msg 的时候，会访问到 msg 变量对应的数据，这时候我们对 msg 使用的数据添加了 getter，做了依赖收集，那么当我们去修改 msg 数据的时候，理应通知到这些订阅者 Watcher 实例（例子中只有渲染Watcher）；
-    // 那么如果我们改变了条件，比如将 flag 改成 false（具体体现为调用了toggle方法将 flag 的值设置为 false），此时会渲染了 msg1 的内容，又会对 msg1 使用的数据添加了 getter，
-    // 如果我们没有依赖移除的过程，即不执行 cleanupDeps 方法，那么这时候我去修改 msg 的数据（具体体现为调用了change方法改变了 msg 的值），还是会通知 msg 数据的订阅的回调，这显然是有浪费的。
-    // 因此，Vue 设计了在每次添加完新的订阅，会移除掉旧的订阅（具体体现在 cleanupDeps 方法中），这样就保证了在我们刚才的场景中，如果渲染 msg1 模板的时候去修改 msg 的数据，msg 数据订阅回调（即Watcher实例）已经被移除了，所以不会有任何浪费
+    // 当我们 flag 为 true 渲染 msg 的时候，会访问到 msg 变量对应的数据，这时候我们对 msg 使用的数据添加了 getter，做了依赖收集（此时会去收集依赖于 flag 和 msg 的 watcher），那么当我们去修改 msg 数据的时候，理应通知到这些订阅者 Watcher 实例（例子中只有渲染Watcher）；
+    // 那么如果我们改变了条件，比如将 flag 改成 false（具体体现为调用了toggle方法将 flag 的值设置为 false），此时会渲染了 msg1 的内容，又会对 msg1 使用的数据添加了 getter，此时会去收集依赖于 flag 和 msg1 的 watcher，
+    // 如果我们没有依赖移除的过程，即不执行 cleanupDeps 方法，那么这时候我去修改 msg 的数据（具体体现为调用了change方法改变了 msg 的值），还是会通知 msg 数据的订阅的回调，因为这个订阅watcher还在 msg 对应的那个 dep 中，
+    // 但由于此时这个渲染 Watcher 并不依赖于 msg 对应的那个 dep，让该依赖回调执行是浪费的。
+    // 因此，Vue 设计了在每次添加完新的订阅，会移除掉旧的订阅（具体体现在 cleanupDeps 方法中），这样就保证了在我们刚才的场景中，
+    // 如果渲染 msg1 模板的时候去修改 msg 的数据，msg 数据订阅回调（即Watcher实例）已经被移除了，所以不会有任何浪费。
     // 3.收集依赖的目的是为了当这些响应式数据发生变化，触发它们的 setter 的时候，能知道应该通知哪些订阅者（即Watcher）去做相应的逻辑处理，我们把这个过程叫派发更新
     // 4.依赖收集涉及代码调用流程：
     // defineReactive getter -> dep.depend -> Dep.target.addDep(this) -> dep.addSub(this)
@@ -37,6 +39,16 @@
           flag: true,
           msg: 'Hello World',
           msg1: 'Hello Vue'
+          // 嵌套，调试 childOb.dep.depend() 代码涉及流程
+          // arr: [
+          //   10,
+          //   {
+          //     name: 'kai'
+          //   },
+          //   // () => console.log('i am arrow fn!'),
+          //   function () { console.log('i am common fn') },
+          //   30
+          // ]
         }
       },
       methods: {

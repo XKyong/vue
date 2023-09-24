@@ -9,6 +9,7 @@ let uid = 0
 /**
  * A dep is an observable that can have multiple
  * directives subscribing to it.
+ * Dep 可以理解为 依赖/订阅者的收集器
  */
 export default class Dep {
   // 静态属性，watcher 对象
@@ -33,7 +34,7 @@ export default class Dep {
     remove(this.subs, sub)
   }
 
-  // 将观察对象和 watcher 建立依赖
+  // 将依赖收集器和 watcher 建立关联，表示当前 watcher 依赖于当前这个 dep 
   depend () { 
     if (Dep.target) {
       // 如果 target 存在，则把 dep 对象添加到 watcher 的依赖中

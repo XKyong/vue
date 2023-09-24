@@ -21,9 +21,10 @@
     // 总结一下派发更新的过程：
     // 1.当数据发生变化的时候，触发 defineReactive setter 逻辑（路径：src\core\observer\index.js），然后触发 dep.notify() 方法，
     // 把在依赖收集过程中订阅的所有观察者，也就是 watcher，都触发它们的 update 过程。
-    // 该过程如果是异步（即 sync 为 false）的话，这个过程又利用了队列做了进一步优化，具体体现为调用 queueWatcher 方法进行处理（路径：src\core\observer\scheduler.js），
+    // 该过程如果是异步（即 sync 为 false）的话，则这个过程又利用了队列做了进一步优化，具体体现为调用 queueWatcher 方法进行处理（路径：src\core\observer\scheduler.js），
     // 最后调用 nextTick(flushSchedulerQueue) 在下一次 tick 时执行所有 watcher 的 run 方法，
-    // 在该方法中，如果被处理的是渲染 Watcher，则会重新执行 src\core\instance\lifecycle.js 文件中的“vm._update(vm._render(), hydrating)”代码，然后完成页面内容的重新渲染
+    // 在该 run 方法中，如果被处理的是渲染 Watcher，则会重新执行 src\core\instance\lifecycle.js 文件中的“vm._update(vm._render(), hydrating)”代码，然后完成页面内容的重新渲染，
+    // 当然了，重新渲染的过程又会进行依赖收集的，因为需要访问 getter 处理过下边用户传入的属性
     // 2.派发更新涉及代码调用流程：
     // defineReactive setter -> dep.notify -> watcher.update -> queueWatcher 
     // -> nextTick(flushSchedulerQueue) -> flushSchedulerQueue 

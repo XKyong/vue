@@ -144,7 +144,7 @@
 					"label": "Observer 类"
 				},
 				{
-					"line": 141,
+					"line": 143,
 					"column": 77,
 					"label": "响应式处理入口"
 				}
@@ -244,7 +244,7 @@
 			"path": "src/core/observer/watcher.js",
 			"bookmarks": [
 				{
-					"line": 115,
+					"line": 116,
 					"column": 20,
 					"label": "watcher被作为 Dep.target 的执行代码"
 				}

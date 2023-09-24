@@ -46,12 +46,14 @@ export class Observer {
   vmCount: number; // number of vms that have this object as root $data
 
   constructor (value: any) {
+    // 传入的 value 要么为 Object，要么是 Array
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
     // 将 Observer 实例挂载到观察对象 value 的 __ob__ 属性上
     /* 
-      将Observer实例绑定到data的__ob__属性上面去，之前说过observe的时候会先检测是否已经有__ob__对象存放Observer实例了，def方法定义可以参考https://github.com/vuejs/vue/blob/dev/src/core/util/lang.js#L16 
+      将Observer实例绑定到value对象的__ob__属性上面去，之前说过observe的时候会先检测是否已经有__ob__对象存放Observer实例了，
+      def方法定义可以参考https://github.com/vuejs/vue/blob/dev/src/core/util/lang.js#L16 
     */
     def(value, '__ob__', this)
     // 数组的响应式处理
@@ -153,7 +155,8 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
   } else if (
     /*
       这里的判断是为了确保value是单纯的对象，而不是函数或者是Regexp等情况。
-      而且该对象在shouldConvert的时候才会进行Observer。这是一个标识位，避免重复对value进行Observer
+      而且该对象在shouldObserve的时候才会进行Observer。
+      这是一个标识位，避免重复对value进行Observer
     */
     shouldObserve &&
     !isServerRendering() &&
@@ -184,7 +187,7 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
-  // 创建依赖对象实例，为当前属性 key 收集依赖（收集观察当前属性的 watchers）
+  // 创建依赖收集器对象实例 dep，为当前属性 key 收集依赖（收集观察当前属性的 watcher）
   const dep = new Dep()
   // 获取 obj 对象的属性描述符
   const property = Object.getOwnPropertyDescriptor(obj, key)
@@ -213,16 +216,16 @@ export function defineReactive (
       // 如果预定义的 getter 存在，则 value 等于调用 getter 返回的值
       // 否则直接赋予属性值
       const value = getter ? getter.call(obj) : val
-      // 如果存在当前依赖目标(即 watcher 对象)，建立依赖
+      // 如果当前存在依赖目标(即 watcher 对象)，建立依赖
       if (Dep.target) {
         // 依赖收集，内部首先会将 dep 对象放到 watcher 对象集合中，然后会将 watcher 对象放到 dep 对象的 subs 数组中
         // depend 内部调用方法：Dep.target.addDep(this) -> dep.addSub(this)
         dep.depend()
         // 如果子观察目标存在，建立子对象的依赖关系
-        /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个depend中，一个是正在本身闭包中的depend，另一个是子元素的depend*/
+        /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个dep中，一个是正在本身闭包中的dep（即上边的dep变量），另一个是子元素的dep（即下边的childOb.dep）*/
         if (childOb) {
           // 配合 Vue.set 方法使用
-          // 如果该行代码被注释掉，则调用 Vue.set 方法动态给对象添加属性，派发更新，渲染watcher的 update 过程不会执行，页面不会被重新渲染
+          // 如果该行代码被注释掉，则调用 Vue.set 方法动态给对象添加属性，派发更新，渲染watcher的 update 过程不会执行（因为该 watcher 没放到子元素的 dep 依赖收集器中），页面不会被重新渲染
           childOb.dep.depend()
           // 如果属性值是数组，则特殊处理收集数组对象依赖
           /*是数组则需要对每一个成员都进行依赖收集，如果数组的成员还是数组，则递归。*/
@@ -256,7 +259,7 @@ export function defineReactive (
       } else {
         val = newVal
       }
-      // 如果 newVal 是对象，进行 observe 处理，并返回 子的 observe 对象
+      // 如果 newVal 是对象，进行 observe 处理，并返回子的 observe 对象
       childOb = !shallow && observe(newVal)
       // 派发更新（发布更改通知）
       /*dep对象通知所有的观察者watcher*/
@@ -362,7 +365,7 @@ function dependArray (value: Array<any>) {
     /*通过对象上的观察者进行依赖收集*/
     e && e.__ob__ && e.__ob__.dep.depend()
     if (Array.isArray(e)) {
-      /*当数组成员还是数组的时候地柜执行该方法继续深层依赖收集，直到是对象为止。*/
+      /*当数组成员还是数组的时候，递归执行该方法继续深层依赖收集，直到是对象为止。*/
       dependArray(e)
     }
   }

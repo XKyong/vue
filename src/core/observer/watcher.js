@@ -24,6 +24,7 @@ let uid = 0
  * This is used for both the $watch() api and directives.
  */
  /*如果没有flush掉，直接push到队列中即可*/
+// Watcher 可以理解为 依赖/订阅者
 export default class Watcher {
   vm: Component;
   expression: string;
@@ -170,7 +171,7 @@ export default class Watcher {
    * 同时将本次执行 get 方法传入的 dep 实例及其id保存到 deps 和 depIds 中，并清除 newDeps 和 newDepIds 中的数据
    */
   cleanupDeps () {
-    // 遍历 deps，移除对 dep.subs 数组中 Watcher 的订阅
+    // 每次添加完新的订阅，会从 dep 中移除掉旧的订阅watcher，避免不必要的依赖watcher回调执行（详见例子：examples/00-vue-analysis/14-getter）
     let i = this.deps.length
     while (i--) {
       const dep = this.deps[i]
