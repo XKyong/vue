@@ -235,7 +235,8 @@ function initComputed (vm: Component, computed: Object) {
     // component-defined computed properties are already defined on the
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
-    /*组件正在定义的计算属性已经定义在现有组件的原型上则不会进行重复定义*/
+    /*VueComponent 组件正在定义的计算属性如果已经定义在VueComponent组件的原型上，则不会进行重复定义*/
+    // 详见文件 src\core\global-api\extend.js 中的 initComputed(Sub)
     if (!(key in vm)) {
       /*定义计算属性*/
       defineComputed(vm, key, userDef)
@@ -406,7 +407,7 @@ export function stateMixin (Vue: Class<Component>) {
       )
     }
     propsDef.set = function () {
-      warn(`$props is readonly.`, this)
+      warn(`$道具 is readonly.`, this)
     }
   }
 

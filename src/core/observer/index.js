@@ -223,9 +223,11 @@ export function defineReactive (
         dep.depend()
         // 如果子观察目标存在，建立子对象的依赖关系
         /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个dep中，一个是正在本身闭包中的dep（即上边的dep变量），另一个是子元素的dep（即下边的childOb.dep）*/
+        // childOb 分支里边的处理，就是为了让使用 Vue.set/del 和 数组几个特殊处理方法给对象、数组动态添加属性时，能够在 setter 触发时派发更新，让相应渲染 Watcher 去重新渲染页面
         if (childOb) {
-          // 配合 Vue.set 方法使用
-          // 如果该行代码被注释掉，则调用 Vue.set 方法动态给对象添加属性，派发更新，渲染watcher的 update 过程不会执行（因为该 watcher 没放到子元素的 dep 依赖收集器中），页面不会被重新渲染
+          // 配合 Vue.set 或者数组几个特殊处理的方法（详见src\core\observer\array.js）使用
+          // 如果该行代码被注释掉，则调用 Vue.set 或者数组几个会改变数组本身的方法动态给对象/数组添加属性，
+          // 派发更新，渲染watcher的 update 过程不会执行（因为该 watcher 没放到子元素的 dep 依赖收集器中），页面不会被重新渲染
           childOb.dep.depend()
           // 如果属性值是数组，则特殊处理收集数组对象依赖
           /*是数组则需要对每一个成员都进行依赖收集，如果数组的成员还是数组，则递归。*/
@@ -333,6 +335,9 @@ export function del (target: Array<any> | Object, key: any) {
   ) {
     warn(`Cannot delete reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
+  // 如果是数组，如果该数组被响应式处理过，即该数组上有 __ob__ 属性，
+  // 则这里的 splice 就已经被处理过，里边会使用 ob.dep.notify 去派发更新了；
+  // 否则，则从数组中删除该 key，然后就退出了，没有派发更新的过程
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.splice(key, 1)
     return
@@ -345,13 +350,16 @@ export function del (target: Array<any> | Object, key: any) {
     )
     return
   }
+  // 如果 key 不在 target 上，则直接退出
   if (!hasOwn(target, key)) {
     return
   }
+  // key 在 target 上，则使用 delete 关键字删除从该对象上移除该 key
   delete target[key]
   if (!ob) {
     return
   }
+  // 有 ob 则派发更新，会让 渲染watcher 重新去渲染页面 
   ob.dep.notify()
 }
 

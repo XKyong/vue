@@ -12,9 +12,9 @@
       又会使用 src\shared\util.js 中的 toString 方法将该 msg 对象转成字符串，
       此时又会进行一次依赖收集
     -->
-    <h3>{{ msg }}</h3>
+    <!-- <h3>{{ msg }}</h3> -->
     <ul>
-      <!-- <li v-for="item in items">{{ item }}</li> -->
+      <li v-for="item in items">{{ item }}</li>
     </ul>
     <button @click="add">add</button>
     <button @click="change">change</button>
@@ -27,22 +27,29 @@
     // 3.通过 Vue.set 以及数组的 API 可以解决这些问题，本质上是他们内部手动去做了依赖更新的派发（ob.dep.notify）
     // 4.为了便于理解，例子将 msg 和 items 涉及的逻辑分别注释掉进行分析：
     // (1) 首先是 msg 的例子，按照源码执行结果，可知：
-    //  { msg: { a: 'hello' } } 这个对象有个Observer实例，该实例上对应的 dep.id 为 2，
-    //  msg 属性对应的 dep.id 为 3，dep实例在 defineReactive中创建，然后放到了闭包中，
+    //  { msg: { a: 'hello' } } 这个对象有个Observer实例，该实例上对应的 dep.id 为 2
+    //  msg 属性对应的 dep.id 为 3，dep实例在 defineReactive中创建，然后放到了闭包中
     //  { a: 'hello' } 这个对象有个Observer实例，该实例上对应的 dep.id 为 4，
     //  a 属性对应的 dep.id 为 5，dep实例在 defineReactive 中创建，然后放到了闭包中
     // 当使用 Vue.set 给 msg 对象动态添加 b 属性且能够实现页面重新渲染，是因为 defineReactive getter 中有“childOb.dep.depend()”这样的代码，
     // 对应上边就是 { a: 'hello' } 这个对象上 __ob__.dep.depend 方法，getter依赖收集时，也将当前watcher放到 { a: 'hello' } 对象 __ob__.dep 依赖收集器中了
     // 之后 Vue.set 方法中的代码“ob.dep.notify()”就能通知到 __ob__.dep 中的渲染Watcher，然后重新渲染页面了
-    // (2) 然后是 items 的例子，
+
+    // (2) 然后是 items 的例子，按照源码执行结果，可知：
+    // { items: [1, 2] } 这个对象有个Observer实例，该实例上对应的 dep.id 为 2
+    // items 属性对应的 dep.id 为 3，dep实例在 defineReactive 中创建，然后放到了闭包中
+    // [1, 2] 这个数组有个Observer实例，该实例上对应的 dep.id 为 4
+    // 当使用 this.items.splice(1, 1, 3) 这种被特殊处理过的splice数组方法去把数组上索引为1的值改成3时，能够实现页面重新渲染，是因为 defineReactive getter 中有“childOb.dep.depend()”这样的代码，
+    // 对应上边就是 [1, 2] 这个数组上的 __ob__.dep.depend 方法，getter依赖收集时，也将当前watcher放到 [1, 2] 数组 __ob__.dep 依赖收集器中了
+    // 之后 src\core\observer\array.js 文件中，def 第3个参数回调函数里边的代码“ob.dep.notify()”就能通知到 __ob__.dep 中的渲染Watcher，然后重新渲染页面了
     new Vue({
       el: '#app',
       data () {
         return {
-          msg: {
-            a: 'hello'
-          },
-          // items: [1, 2]
+          // msg: {
+          //   a: 'hello'
+          // },
+          items: [1, 2]
         }
       },
       methods: {
@@ -52,7 +59,7 @@
 
           // 正确写法
           // Vue.set(this.items, 1, 3)
-          // this.items.splice(1, 1, 3)
+          this.items.splice(1, 1, 3)
         },
         add () {
           // 错误写法

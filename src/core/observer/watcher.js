@@ -64,6 +64,7 @@ export default class Watcher {
     if (options) {
       this.deep = !!options.deep
       this.user = !!options.user
+      // lazy 为 true，说明是 computed watcher 
       this.lazy = !!options.lazy
       this.sync = !!options.sync
       this.before = options.before
@@ -102,6 +103,8 @@ export default class Watcher {
         )
       }
     }
+
+    // 当 lazy 为 true 时（即computed watcher时），则 this.value 为 undefined
     this.value = this.lazy
       ? undefined
       : this.get()
@@ -257,7 +260,7 @@ export default class Watcher {
 
   /**
    * Evaluate the value of the watcher.
-   * This only gets called for lazy watchers.
+   * This only gets called for lazy watchers（即 computed watcher）.
    */
    /*获取观察者的值*/
   evaluate () {

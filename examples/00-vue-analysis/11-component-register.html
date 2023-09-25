@@ -12,7 +12,7 @@
     // 相关注释也在工程中注明了！
     // 1.涉及全局注册和局部注册组件的核心函数有：
     // (1)initAssetRegisters: 在 src\core\global-api\assets.js 文件中，全局注册组件会来到这个方法里边
-    // (2)Vue.extend: 在 src\core\global-api\extend.js 文件中，全局注册组件会来到这个方法里边，
+    // (2)Vue.extend: 在 src\core\global-api\extend.js 文件中，局部注册组件会来到这个方法里边，
     // 核心代码是 Sub.options = mergeOptions(Super.options, extendOptions)
     // (3)resolveAsset: 在 src\core\util\options.js 文件中，获取 components 属性上对应组件的构造函数时会用到该 resolveAsset 函数,
     // 需要获取 components 属性的时机在 src\core\vdom\create-element.js 文件中的 _createElement 函数中
