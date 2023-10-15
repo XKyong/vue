@@ -12,10 +12,10 @@
       又会使用 src\shared\util.js 中的 toString 方法将该 msg 对象转成字符串，
       此时又会进行一次依赖收集
     -->
-    <!-- <h3>{{ msg }}</h3> -->
-    <ul>
+    <h3>{{ msg }}</h3>
+    <!-- <ul>
       <li v-for="item in items">{{ item }}</li>
-    </ul>
+    </ul> -->
     <button @click="add">add</button>
     <button @click="change">change</button>
   </div>
@@ -46,10 +46,10 @@
       el: '#app',
       data () {
         return {
-          // msg: {
-          //   a: 'hello'
-          // },
-          items: [1, 2]
+          msg: {
+            a: 'hello'
+          },
+          // items: [1, 2]
         }
       },
       methods: {
@@ -66,7 +66,10 @@
           // this.msg.b = 'Vue'
           
           // 正确写法
-          Vue.set(this.msg, 'b', 'Vue')
+          // Vue.set(this.msg, 'b', 'Vue')
+          // Object.assign 能够生效是由于 defineReactive setter 中的 “childOb = !shallow && observe(newVal)” 这样代码，
+          // 即会对传入的 对象 重新做依赖收集！ 
+          this.msg = Object.assign({}, this.msg, { b: 'Vue' })
 
           // 错误写法
           // this.items[2] = 4

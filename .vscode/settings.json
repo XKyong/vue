@@ -1,5 +1,6 @@
 {
   // 设置不检查 JavaScript 的语法问题，防止 flow 报错
   "javascript.validate.enable": false,
-  "commentTranslate.source": "Bing"
+  "commentTranslate.source": "Bing",
+  "liveServer.settings.port": 5501
 }
