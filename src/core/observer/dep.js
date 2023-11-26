@@ -37,7 +37,7 @@ export default class Dep {
   // 将依赖收集器和 watcher 建立关联，表示当前 watcher 依赖于当前这个 dep 
   depend () { 
     if (Dep.target) {
-      // 如果 target 存在，则把 dep 对象添加到 watcher 的依赖中
+      // 如果 target 存在，则把 dep 对象添加到 watcher 的依赖（newDepIds和newDeps）中
       Dep.target.addDep(this)
     }
   }

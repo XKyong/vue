@@ -345,6 +345,7 @@ function initMethods (vm: Component, methods: Object) {
   }
 }
 
+// watch 的类型注解：{ [key: string]: string | Function | Object | Array }
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
@@ -437,6 +438,7 @@ export function stateMixin (Vue: Class<Component>) {
     options?: Object
   ): Function {
     const vm: Component = this
+    // 可以直接在业务代码中使用 this.$watch 的，因此这里还是要对 cb 是纯对象的写法做下处理
     if (isPlainObject(cb)) {
       return createWatcher(vm, expOrFn, cb, options)
     }

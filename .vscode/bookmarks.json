@@ -244,7 +244,7 @@
 			"path": "src/core/observer/watcher.js",
 			"bookmarks": [
 				{
-					"line": 119,
+					"line": 120,
 					"column": 20,
 					"label": "watcher被作为 Dep.target 的执行代码"
 				}

@@ -219,7 +219,7 @@ export function defineReactive (
       // 如果当前存在依赖目标(即 watcher 对象)，建立依赖
       if (Dep.target) {
         // 依赖收集，内部首先会将 dep 对象放到 watcher 对象集合中，然后会将 watcher 对象放到 dep 对象的 subs 数组中
-        // depend 内部调用方法：Dep.target.addDep(this) -> dep.addSub(this)
+        // depend 内部调用方法：Dep.target.addDep(this) -> dep.addSub(this)，第一个 this 是 Dep 实例，第二个 this 是 Watcher 实例
         dep.depend()
         // 如果子观察目标存在，建立子对象的依赖关系
         /*子对象进行依赖收集，其实就是将同一个watcher观察者实例放进了两个dep中，一个是正在本身闭包中的dep（即上边的dep变量），另一个是子元素的dep（即下边的childOb.dep）*/
@@ -247,7 +247,7 @@ export function defineReactive (
       /* eslint-disable no-self-compare */
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
-      }
+      } 
       /* eslint-enable no-self-compare */
       if (process.env.NODE_ENV !== 'production' && customSetter) {
         customSetter()

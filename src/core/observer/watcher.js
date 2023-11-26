@@ -63,6 +63,7 @@ export default class Watcher {
     // options
     if (options) {
       this.deep = !!options.deep
+      // user 为 true，说明是 user watcher 
       this.user = !!options.user
       // lazy 为 true，说明是 computed watcher 
       this.lazy = !!options.lazy
@@ -91,7 +92,7 @@ export default class Watcher {
       this.getter = expOrFn
     } else {
       // expOrFn 是字符串的时候，例如 watch: { 'person.name': function ... }
-      // parsePath('person.name') 会返回一个函数获取 person.name 的值
+      // parsePath('person.name') 会返回一个获取 person.name 值的函数
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop

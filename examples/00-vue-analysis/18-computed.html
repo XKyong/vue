@@ -28,7 +28,7 @@
     // 然后进入 name 属性的 computedGetter 函数中（路径：src\core\instance\state.js），
     // 进入该函数时，会执行 watcher.evaluate()，这里的 watcher 是computed watcher(id=1)，
     // evaluate 执行过程中，会调用下边传入的 name 属性的函数体(即this.get())，此时Dep.target为 computed watcher，然后访问到 this.useless，进而进入到 useless 属性的 defineReactive getter 中，然后将当前 computed watcher 放入 dep.id = 5 的依赖收集器中，
-    // 之后执行 watcher.depend()，此时Dep.target 是上边的渲染watcher，该 computed watcher 的 depend 方法执行过程中，会将该 computed watcher 上的 deps 遍历一遍，然后把渲染 watcher 放到这些 dep 依赖收集器中，
+    // 之后执行 watcher.depend()，此时 Dep.target 是上边的渲染watcher，该 computed watcher 的 depend 方法执行过程中，会将该 computed watcher 上的 deps 遍历一遍，然后把渲染 watcher 放到这些 dep 依赖收集器中，
     // 当前例子是将渲染 watcher 放入 dep.id = 5 的依赖收集器中，即让渲染 watcher 依赖于 useless 这个属性，此时 dep.id = 5 的依赖收集器上有2个watcher实例了
     // 最后返回 computed watcher 的 value 属性('please click change')
 
@@ -43,6 +43,7 @@
     new Vue({
       el: '#app',
       data () {
+        // this.useless = 0
         return {
           firstName: 'yi',
           lastName: 'kai',
@@ -50,6 +51,8 @@
         }
       },
       computed: {
+        // 计算属性 getter 中所依赖的变量必须是经过响应式处理的，否则会出现异常，
+        // 例如将 useless 变成是未经过响应式处理的变量，然后在看看 name 的变化！
         name () {
           if (this.useless > 0) {
             return this.firstName + ',' + this.lastName
@@ -61,6 +64,7 @@
       methods: {
         change () {
           this.useless++
+          console.log('this.useless---', this.useless)
         },
         changeLastName () {
           this.lastName = 'jia'
